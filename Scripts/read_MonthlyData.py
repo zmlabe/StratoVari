@@ -39,7 +39,7 @@ def readExperiAll(varid,timeperiod,level):
     -----
     lat,lon,lev,var = readExperiAll(varid,timeperiod,level)
     """
-    print('\n>>> Using readExperiAll function!')
+    print('\n>>>>>>>>>> Using readExperiAll function!')
     
     ### Import modules
     import numpy as np
@@ -64,7 +64,7 @@ def readExperiAll(varid,timeperiod,level):
     totaldirectory = directorydata1 + experi + '/monthly/'
     filename = totaldirectory + varid + '_1701-2000.nc'
     
-    if varid == 'EGR' and level == 'surface':
+    if varid == 'EGR' and level == 'surface': # integrated from 500-850 hPa
         filename = totaldirectory + varid + '_500_850.nc'
 
     ### Read in Data
@@ -82,6 +82,15 @@ def readExperiAll(varid,timeperiod,level):
         lon = data.variables['longitude'][:]
         varq = data.variables['%s' % varid][:]
         data.close()
+    elif level == 'zonmean': # 3d variables (zonal mean!)
+        varidz = varid + '_' + level
+        filename = totaldirectory + varidz + '_1701-2000.nc'
+        data = Dataset(filename,'r')
+        lev = data.variables['level'][:]
+        lat = data.variables['lat'][:]
+        lon = data.variables['lon'][:]
+        varq = data.variables['%s' % varid][:].squeeze()
+        data.close()
     else:
         print(ValueError('Selected wrong height - (surface or profile!)!'))    
     print('Completed: Read data for *%s* : %s!' % (experi[:],varid))
@@ -89,11 +98,14 @@ def readExperiAll(varid,timeperiod,level):
     ### Reshape to split years and months
     months = 12
     if level == 'surface': # 3d variables
-        var = np.reshape(varq,(int(varq.shape[0]/12),months,
+        var = np.reshape(varq,(varq.shape[0]//months,months,
                               int(lat.shape[0]),int(lon.shape[0])))
     elif level == 'profile': # 4d variables
-        var = np.reshape(varq,(int(varq.shape[0]/12),months,int(lev.shape[0]),
+        var = np.reshape(varq,(varq.shape[0]//months,months,int(lev.shape[0]),
                       int(lat.shape[0]),int(lon.shape[0])))
+    elif level == 'zonmean': # 3d variables (zonal mean!)
+        var = np.reshape(varq,(varq.shape[0]//months,months,int(lev.shape[0]),
+                      int(lat.shape[0])))
     else:
         print(ValueError('Selected wrong height - (surface or profile!)!')) 
     print('Completed: Reshaped %s array!' % (varid))
@@ -108,11 +120,11 @@ def readExperiAll(varid,timeperiod,level):
         
     print('Completed: Read members 1-300!')
 
-    print('>>> Completed: Finished readExperiAll function!')
+    print('>>>>>>>>>> Completed: Finished readExperiAll function!')
     return lat,lon,lev,var
 
 #### Test function -- no need to use    
-varid = 'Z30'
-timeperiod = 'Future'
-level = 'surface'
-lat,lon,lev,var = readExperiAll(varid,timeperiod,level)
+#varid = 'U10'
+#timeperiod = 'Past'
+#level = 'surface'
+#lat,lon,lev,var = readExperiAll(varid,timeperiod,level)
