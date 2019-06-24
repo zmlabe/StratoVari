@@ -29,21 +29,32 @@ currenttime = currentmn + '_' + currentdy + '_' + currentyr
 titletime = currentmn + '/' + currentdy + '/' + currentyr
 print('\n' '----Plotting 100 Year Periods (Vertical)- %s----' % titletime)
 
-### Alott time series
+### Alott time series (300 ensemble members)
 year1 = 1701
 year2 = 2000
 years = np.arange(year1,year2+1,1)
 
 ###############################################################################
+###############################################################################
+###############################################################################
 ### Call arguments
 varnames = ['U','GEOP','TEMP','V','EGR']
-period = 'DJF'
+period = 'ND' # Enter temporal period (DJF,JFM,JFMA,ND)
+simuh = 'Current' # Enter simulation time (Current,Past)
+######################
+if simuh == 'Current':
+    simuq = 'Cu'
+elif simuh == 'Past':
+    simuq = 'Pi'
+else:
+    print(ValueError('Wrong simulation selected!'))
+######################
 letters = [r'Mean',r'A',r'B',r'C']
 for v in range(len(varnames)):
     ### Call function for 4d variable data
     lat,lon,lev,varfuture = MO.readExperiAll('%s' % varnames[v],'Future',
                                                'profile')
-    lat,lon,lev,varpast = MO.readExperiAll('%s' % varnames[v],'Past',
+    lat,lon,lev,varpast = MO.readExperiAll('%s' % varnames[v],'%s' % simuh,
                                                'profile')
     
     ### Create 2d array of latitude and longitude
@@ -58,9 +69,24 @@ for v in range(len(varnames)):
                           varpast.shape[3],varpast.shape[4]))
         for i in range(len(runs)):
             varmo[i] = UT.calcDecJanFeb(runs[i],runs[i],lat,
-                                                  lon,'profile',17)   
+                                                  lon,'profile',17)  
+    elif period == 'JFM':
+        varmo = np.empty((len(runs),varpast.shape[0],varpast.shape[2],
+                          varpast.shape[3],varpast.shape[4]))
+        for i in range(len(runs)):
+            varmo[i] = np.nanmean(runs[i][:,:3,:,:,:],axis=1)
+    elif period == 'JFMA':
+        varmo = np.empty((len(runs),varpast.shape[0],varpast.shape[2],
+                          varpast.shape[3],varpast.shape[4]))
+        for i in range(len(runs)):
+            varmo[i] = np.nanmean(runs[i][:,:4,:,:,:],axis=1)
+    elif period == 'ND':
+        varmo = np.empty((len(runs),varpast.shape[0],varpast.shape[2],
+                          varpast.shape[3],varpast.shape[4]))
+        for i in range(len(runs)):
+            varmo[i] = np.nanmean(runs[i][:,-2:,:,:,:],axis=1)
     else:
-        ValueError('Wrong period selected! (DJF)')
+        ValueError('Wrong period selected! (DJF,JFM,JFMA,ND)')
         
     ### Remove missing data 
     varmo[np.where(varmo < -1e10)] = np.nan
@@ -267,7 +293,7 @@ for v in range(len(varnames)):
     plt.tight_layout()
     plt.subplots_adjust(bottom=0.15,hspace=0.05,wspace=0.05)
     
-    plt.savefig(directoryfigure + 'MeanResponse_300ens_%s_%s.png' % (
+    plt.savefig(directoryfigure +'%s/' % simuq + 'MeanResponse_300ens_%s_%s.png' % (
                 varnames[v],period),dpi=300)
     print('Completed: Script done!')
 
