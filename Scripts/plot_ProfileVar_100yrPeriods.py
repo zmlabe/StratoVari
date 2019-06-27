@@ -39,8 +39,8 @@ years = np.arange(year1,year2+1,1)
 ###############################################################################
 ### Call arguments
 varnames = ['U','GEOP','TEMP','V','EGR']
-period = 'ND' # Enter temporal period (DJF,JFM,JFMA,ND)
-simuh = 'Current' # Enter simulation time (Current,Past)
+period = 'MA' # Enter temporal period (DJF,JFM,JFMA,ND,MA)
+simuh = 'Past' # Enter simulation time (Current,Past)
 ######################
 if simuh == 'Current':
     simuq = 'Cu'
@@ -85,6 +85,11 @@ for v in range(len(varnames)):
                           varpast.shape[3],varpast.shape[4]))
         for i in range(len(runs)):
             varmo[i] = np.nanmean(runs[i][:,-2:,:,:,:],axis=1)
+    elif period == 'MA':
+        varmo = np.empty((len(runs),varpast.shape[0],varpast.shape[2],
+                          varpast.shape[3],varpast.shape[4]))
+        for i in range(len(runs)):
+            varmo[i] = np.nanmean(runs[i][:,2:4,:,:,:],axis=1)
     else:
         ValueError('Wrong period selected! (DJF,JFM,JFMA,ND)')
         

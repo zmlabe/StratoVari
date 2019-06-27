@@ -145,7 +145,7 @@ def calcDecJanFeb(varx,vary,lat,lon,level,levsq):
     -----
     varx_djf = calcDecJanFeb(varx,vary,lat,lon,level,levsq)
     """
-    print('\n>>> Using calcDecJan function!')
+    print('\n>>> Using calcDecJanFeb function!')
     
     ### Import modules
     import numpy as np
