@@ -40,7 +40,7 @@ years = np.arange(year1,year2+1,1)
 ###############################################################################
 ###############################################################################
 ### Call arguments
-experiment = 'Current'
+experiment = 'Past'
 
 ######################
 def readDataPeriods(varnames,experiment):
@@ -70,18 +70,21 @@ def readDataPeriods(varnames,experiment):
 ###########################################################################
 ###########################################################################
 ### Read in data
+sicf,sich,lat,lon,lev = readDataPeriods('SIC',experiment)
 shf,shh,lat,lon,lev = readDataPeriods('SHFLX',experiment)
 lhf,lhh,lat,lon,lev = readDataPeriods('LHFLX',experiment)
 longf,longh,lat,lon,lev = readDataPeriods('FLNS',experiment)
 
 ### Calculate anomalies 
+anomice = np.nanmean(sicf - sich,axis=0)
 anomsh = np.nanmean(shf - shh,axis=0)
 anomlh = np.nanmean(lhf - lhh,axis=0)
 anomlong = np.nanmean(longf - longh,axis=0)
-varq = list(itertools.chain(*[anomsh,anomlh,anomlong]))
+varq = list(itertools.chain(*[anomice,anomsh,anomlh,anomlong]))
 
 ### Create variable names 
-varnamesn = list(map(str,np.repeat(['SHFLX'],6))) + \
+varnamesn = list(map(str,np.repeat(['SIC'],6))) + \
+            list(map(str,np.repeat(['SHFLX'],6))) + \
             list(map(str,np.repeat(['LHFLX'],6))) + \
             list(map(str,np.repeat(['LWN'],6)))
 labelmonths = [r'NOV',r'DEC',r'JAN',r'FEB',r'MAR',r'APR']
@@ -94,10 +97,10 @@ letters = list(map(chr, range(97, 123)))
 plt.rc('text',usetex=True)
 plt.rc('font',**{'family':'sans-serif','sans-serif':['Avant Garde']}) 
 
-fig = plt.figure(figsize=(11,5))
+fig = plt.figure()
 
 for v in range(len(varnamesn)):
-    ax = plt.subplot(3,6,v+1)
+    ax = plt.subplot(4,6,v+1)
     
     ### Upward fluxes are positive
     if varnamesn[v] == 'LHFLX':
@@ -110,23 +113,28 @@ for v in range(len(varnamesn)):
         varqq = varq[v] * -1.
     elif varnamesn[v] == 'LWN':
         varqq = varq[v] * 1.
+    elif varnamesn[v] == 'SIC':
+        varqq = varq[v]
     
     ### Set limits for contours and colorbars
     if varnamesn[v] == 'LHFlX':
         limit = np.arange(-50,50.1,2)
-        barlim = np.arange(-50,51,50) 
+        barlim = np.arange(-50,51,25) 
     elif varnamesn[v] == 'SHFLX':
         limit = np.arange(-50,50.1,2)
-        barlim = np.arange(-50,51,50) 
+        barlim = np.arange(-50,51,25) 
     elif varnamesn[v] == 'RNET':
         limit = np.arange(-50,50.1,2)
-        barlim = np.arange(-50,51,50) 
+        barlim = np.arange(-50,51,25) 
     elif varnamesn[v] == 'THFLX':
         limit = np.arange(-50,50.1,2)
-        barlim = np.arange(-50,51,50) 
+        barlim = np.arange(-50,51,25) 
     elif varnamesn[v] == 'LWN':
         limit = np.arange(-50,50.1,2)
-        barlim = np.arange(-50,51,50) 
+        barlim = np.arange(-50,51,25) 
+    elif varnamesn[v] == 'SIC':
+        limit = np.arange(-100,1,2)
+        barlim = np.arange(-100,1,25)
     
     m = Basemap(projection='npstere',boundinglat=51,lon_0=0,resolution='l',
                 round =True,area_thresh=10000)
@@ -164,40 +172,42 @@ for v in range(len(varnamesn)):
         cs.set_cmap(cmap)  
             
     ### Add experiment text to subplot
-    if any([v == 0,v == 6,v == 12]):
+    if any([v == 0,v == 6,v == 12,v == 18]):
         ax.annotate(r'\textbf{%s}' % varnamesn[v],xy=(0,0),xytext=(-0.18,0.5),
                      textcoords='axes fraction',color='k',
-                     fontsize=16,rotation=90,ha='center',va='center')
+                     fontsize=13,rotation=90,ha='center',va='center')
     if v < 6:
         ax.annotate(r'\textbf{%s}' % labelmonths[v],
                     xy=(0, 0),xytext=(0.5,1.13),xycoords='axes fraction',
-                    fontsize=20,color='dimgrey',rotation=0,
+                    fontsize=15,color='dimgrey',rotation=0,
                     ha='center',va='center')
         
     ax.annotate(r'\textbf{[%s]}' % letters[v],xy=(0,0),
             xytext=(0.92,0.9),xycoords='axes fraction',
-            color='dimgrey',fontsize=9)
+            color='dimgrey',fontsize=6)
         
     ax.set_aspect('equal')
             
     ###########################################################################
     if v == 5:
-        cbar_ax = fig.add_axes([0.92,0.65,0.015,0.2])                
+        cbar_ax = fig.add_axes([0.92,0.71,0.01,0.15])                
         cbar = fig.colorbar(cs,cax=cbar_ax,orientation='vertical',
                             extend='both',extendfrac=0.07,drawedges=False)    
         if varnamesn[v] == 'LHFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=11,color='k')   
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
         elif varnamesn[v] == 'SHFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=11,color='k')   
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
         elif varnamesn[v] == 'RNET':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=11,color='k')   
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
         elif varnamesn[v] == 'THFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=11,color='k')   
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')     
         elif varnamesn[v] == 'LWN':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=11,color='k')   
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')
+        elif varnamesn[v] == 'SIC':
+            cbar.set_label(r'\textbf{\%}',fontsize=7.5,color='k')
         cbar.set_ticks(barlim)
         cbar.set_ticklabels(list(map(str,barlim)))
-        cbar.ax.tick_params(labelsize=9,pad=7) 
+        cbar.ax.tick_params(labelsize=5,pad=7) 
         ticklabs = cbar.ax.get_yticklabels()
         cbar.ax.set_yticklabels(ticklabs,ha='center')
         cbar.ax.tick_params(axis='y', size=.001)
@@ -205,22 +215,24 @@ for v in range(len(varnamesn)):
         cbar.outline.set_linewidth(0.5)
         
     elif v == 11:
-        cbar_ax = fig.add_axes([0.92,0.395,0.015,0.2])                
+        cbar_ax = fig.add_axes([0.92,0.52,0.01,0.15])              
         cbar = fig.colorbar(cs,cax=cbar_ax,orientation='vertical',
                             extend='both',extendfrac=0.07,drawedges=False)    
         if varnamesn[v] == 'LHFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=11,color='k')   
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
         elif varnamesn[v] == 'SHFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=11,color='k')   
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
         elif varnamesn[v] == 'RNET':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=11,color='k')   
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
         elif varnamesn[v] == 'THFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=11,color='k')    
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')     
         elif varnamesn[v] == 'LWN':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=11,color='k') 
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')
+        elif varnamesn[v] == 'SIC':
+            cbar.set_label(r'\textbf{\%}',fontsize=7.5,color='k')
         cbar.set_ticks(barlim)
         cbar.set_ticklabels(list(map(str,barlim)))
-        cbar.ax.tick_params(labelsize=9,pad=8) 
+        cbar.ax.tick_params(labelsize=5,pad=8) 
         ticklabs = cbar.ax.get_yticklabels()
         cbar.ax.set_yticklabels(ticklabs,ha='center')
         cbar.ax.tick_params(axis='y', size=.001)
@@ -228,22 +240,49 @@ for v in range(len(varnamesn)):
         cbar.outline.set_linewidth(0.5)
         
     elif v == 17:
-        cbar_ax = fig.add_axes([0.92,0.14,0.015,0.2])                   
+        cbar_ax = fig.add_axes([0.92,0.33,0.01,0.15])                 
         cbar = fig.colorbar(cs,cax=cbar_ax,orientation='vertical',
                             extend='both',extendfrac=0.07,drawedges=False)    
-        if varnamesn[v] == 'LHFlX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=11,color='k')   
+        if varnamesn[v] == 'LHFLX':
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
         elif varnamesn[v] == 'SHFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=11,color='k')   
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
         elif varnamesn[v] == 'RNET':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=11,color='k')   
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
         elif varnamesn[v] == 'THFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=11,color='k')     
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')     
         elif varnamesn[v] == 'LWN':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=11,color='k') 
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')
+        elif varnamesn[v] == 'SIC':
+            cbar.set_label(r'\textbf{\%}',fontsize=7.5,color='k')
         cbar.set_ticks(barlim)
         cbar.set_ticklabels(list(map(str,barlim)))
-        cbar.ax.tick_params(labelsize=9,pad=8) 
+        cbar.ax.tick_params(labelsize=5,pad=8) 
+        ticklabs = cbar.ax.get_yticklabels()
+        cbar.ax.set_yticklabels(ticklabs,ha='center')
+        cbar.ax.tick_params(axis='y', size=.001)
+        cbar.outline.set_edgecolor('dimgrey')
+        cbar.outline.set_linewidth(0.5)
+        
+    elif v == 23:
+        cbar_ax = fig.add_axes([0.92,0.14,0.01,0.15])              
+        cbar = fig.colorbar(cs,cax=cbar_ax,orientation='vertical',
+                            extend='both',extendfrac=0.07,drawedges=False)    
+        if varnamesn[v] == 'LHFLX':
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
+        elif varnamesn[v] == 'SHFLX':
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
+        elif varnamesn[v] == 'RNET':
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
+        elif varnamesn[v] == 'THFLX':
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')     
+        elif varnamesn[v] == 'LWN':
+            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')
+        elif varnamesn[v] == 'SIC':
+            cbar.set_label(r'\textbf{\%}',fontsize=7.5,color='k')
+        cbar.set_ticks(barlim)
+        cbar.set_ticklabels(list(map(str,barlim)))
+        cbar.ax.tick_params(labelsize=5,pad=8) 
         ticklabs = cbar.ax.get_yticklabels()
         cbar.ax.set_yticklabels(ticklabs,ha='center')
         cbar.ax.tick_params(axis='y', size=.001)
