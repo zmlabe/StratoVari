@@ -1,11 +1,11 @@
 """
-Plot maps of PAMIP data for each month from November to April using
-the ensemble mean (300)
+Plot maps of PAMIP data for each month from November to April to calculate
+the change in variability (standard deviation)
 
 Notes
 -----
     Author : Zachary Labe
-    Date   : 27 June 2019
+    Date   : 3 July 2019
 """
 
 ### Import modules
@@ -14,14 +14,12 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap, addcyclic, shiftgrid
 import datetime
 import read_MonthlyData as MO
-import calc_Utilities as UT
 import cmocean
 import itertools
 
 ### Define directories
 directorydata = '/seley/zlabe/simu/'
 directoryfigure = '/home/zlabe/Desktop/STRATOVARI/'
-#directoryfigure = '/home/zlabe/Documents/Research/SITperturb/Figures/'
 
 ### Define time           
 now = datetime.datetime.now()
@@ -30,7 +28,7 @@ currentdy = str(now.day)
 currentyr = str(now.year)
 currenttime = currentmn + '_' + currentdy + '_' + currentyr
 titletime = currentmn + '/' + currentdy + '/' + currentyr
-print('\n' '----Plotting Monthly Maps- %s----' % titletime)
+print('\n' '----Plotting Monthly Maps of STD- %s----' % titletime)
 
 ### Alott time series (300 ensemble members)
 year1 = 1701
@@ -41,7 +39,7 @@ years = np.arange(year1,year2+1,1)
 ###############################################################################
 ###############################################################################
 ### Call arguments
-varnames = ['U10','U700','U300','SLP','Z500','Z30','T2M','THICK','RNET','P','EGR']
+varnames = ['U10','U300','SLP','Z500','Z30','T1000','T2M','THICK','P']
 
 ######################
 def readDataPeriods(varnames,sliceq):
@@ -75,72 +73,54 @@ def readDataPeriods(varnames,sliceq):
                            axis=1)
     varpastm = np.append(varpast[:,-2:,:,:],varpast[:,:4,:,:],axis=1)
     
-    ### Calculate anomalies
-    anompi = varfuturem - varpastm
+    ### Calculate change in variability 
+    stdm = np.nanstd(varfuturem,axis=0) - np.nanstd(varpastm,axis=0)
     
-    ### Calculate ensemble mean
-    anompim = np.nanmean(anompi,axis=0)
-    zdiffruns = anompim
-    
-    ### Calculate climatologies
-    zclimo = np.nanmean(varpastm,axis=0)
-    
-    ### Calculate significance for each month
-    stat_past = np.empty((varpastm.shape[1],len(lat),len(lon)))
-    pvalue_past= np.empty((varpastm.shape[1],len(lat),len(lon)))
-    for i in range(varpastm.shape[1]):
-        stat_past[i],pvalue_past[i] = UT.calc_indttest(varfuturem[:,i,:,:],
-                                                       varpastm[:,i,:,:])
-    
-    pruns = pvalue_past
-    
-    return zdiffruns,zclimo,pruns,lat,lon,lev
+    return stdm,lat,lon
     
 ###########################################################################
 ###########################################################################
 ###########################################################################
 ### Read in data
 for v in range(len(varnames)):
-    diffm,climom,pvalm,lat,lon,lev = readDataPeriods(varnames[v],'Mean')
-    diffa,climoa,pvala,lat,lon,lev = readDataPeriods(varnames[v],'A')
-    diffb,climob,pvalb,lat,lon,lev = readDataPeriods(varnames[v],'B')
-    diffc,climoc,pvalc,lat,lon,lev = readDataPeriods(varnames[v],'C')
+    stdm,lat,lon = readDataPeriods(varnames[v],'Mean')
+    stda,lat,lon = readDataPeriods(varnames[v],'A')
+    stdb,lat,lon = readDataPeriods(varnames[v],'B')
+    stdc,lat,lon = readDataPeriods(varnames[v],'C')
 
-    var = list(itertools.chain(*[diffm,diffa,diffb,diffc]))
-    climos = list(itertools.chain(*[climom,climoa,climob,climoc]))    
-    pvar = list(itertools.chain(*[pvalm,pvala,pvalb,pvalc]))
+    var = list(itertools.chain(*[stdm,stda,stdb,stdc]))
     
     ### Plot Variables
     plt.rc('text',usetex=True)
     plt.rc('font',**{'family':'sans-serif','sans-serif':['Avant Garde']}) 
     
     ### Set limits for contours and colorbars
-    if varnames[v] == 'T2M':
+    if varnames[v] == 'T2M' or varnames[v] == 'T1000':
+        limit = np.arange(-2,2.1,0.1)
+        barlim = np.arange(-2,3,1)
+    elif varnames[v] == 'SLP':
+        limit = np.arange(-3,3.1,0.25)
+        barlim = np.arange(-3,4,3)
+    elif varnames[v] == 'Z500':
+        limit = np.arange(-30,30.1,2)
+        barlim = np.arange(-30,31,15) 
+    elif varnames[v] == 'Z30':
+        limit = np.arange(-50,50.1,2)
+        barlim = np.arange(-50,51,25) 
+    elif varnames[v] == 'U10' or varnames[v] == 'U300' or varnames[v] == 'U500':
+        limit = np.arange(-3,3.1,0.25)
+        barlim = np.arange(-3,4,1)
+    elif varnames[v] == 'SWE':
         limit = np.arange(-10,10.1,0.5)
         barlim = np.arange(-10,11,5)
-    elif varnames[v] == 'SLP':
-        limit = np.arange(-6,6.1,0.5)
-        barlim = np.arange(-6,7,3)
-    elif varnames[v] == 'Z500':
-        limit = np.arange(-60,60.1,5)
-        barlim = np.arange(-60,61,30) 
-    elif varnames[v] == 'Z30':
-        limit = np.arange(-100,100.1,10)
-        barlim = np.arange(-100,101,50) 
-    elif varnames[v] == 'U10' or varnames[v] == 'U300' or varnames[v] == 'U500' or varnames[v] == 'U700':
-        limit = np.arange(-5,5.1,0.5)
-        barlim = np.arange(-5,6,1)
-    elif varnames[v] == 'SWE':
-        limit = np.arange(-25,25.1,1)
-        barlim = np.arange(-25,26,25)
     elif varnames[v] == 'P':
-        limit = np.arange(-2,2.1,0.05)
-        barlim = np.arange(-2,3,1) 
+        limit = np.arange(-1,1.1,0.05)
+        barlim = np.arange(-1,2,1) 
     elif varnames[v] == 'THICK':
-        limit = np.arange(-60,60.1,3)
-        barlim = np.arange(-60,61,30)
+        limit = np.arange(-30,30.1,1)
+        barlim = np.arange(-30,31,15)
     elif varnames[v] == 'EGR':
-        limit = np.arange(-0.2,0.21,0.02)
+        limit = np.arange(-0.2,0.201,0.02)
         barlim = np.arange(-0.2,0.3,0.2)
         
     lonq,latq = np.meshgrid(lon,lat)
@@ -156,29 +136,14 @@ for v in range(len(varnames)):
         varn, lons_cyclic = shiftgrid(180., varn, lons_cyclic, start=False)
         lon2d, lat2d = np.meshgrid(lons_cyclic, lat)
         x, y = m(lon2d, lat2d)
-        
-        pvarn,lons_cyclic = addcyclic(pvar[i], lon)
-        pvarn,lons_cyclic = shiftgrid(180.,pvarn,lons_cyclic,start=False)
-        climoq,lons_cyclic = addcyclic(climos[i], lon)
-        climoq,lons_cyclic = shiftgrid(180.,climoq,lons_cyclic,start=False)
                   
         circle = m.drawmapboundary(fill_color='white',
                                    color='dimgrey',linewidth=0.7)
         circle.set_clip_on(False)
         
-        if varnames[v] == 'RNET':
-            varn = varn * -1. # change sign for upward fluxes as positive
-        
         cs = m.contourf(x,y,varn,limit,extend='both')
-        cs1 = m.contourf(x,y,pvarn,colors='None',hatches=['....'])
-        if varnames[v] == 'Z30': # the interval is 250 m 
-            cs2 = m.contour(x,y,climoq,np.arange(21900,23500,250),
-                            colors='k',linewidths=1.1,zorder=10)
-        if varnames[v] == 'RNET':
-            m.drawcoastlines(color='darkgray',linewidth=0.3)
-            m.fillcontinents(color='dimgrey')
-        else:
-            m.drawcoastlines(color='dimgrey',linewidth=0.6)
+
+        m.drawcoastlines(color='dimgrey',linewidth=0.6)
         
         if any([i==0,i==6,i==12,i==18]):
             ax1.tick_params(labelleft='on')       
@@ -201,36 +166,8 @@ for v in range(len(varnames)):
                     ax1.tick_params(axis='x',direction='out',which='major',
                                     pad=3,width=0,color='dimgrey')    
    
-        if varnames[v] == 'T2M':
-            cmap = cmocean.cm.balance             
-            cs.set_cmap(cmap)   
-        elif varnames[v] == 'SLP':
-            cmap = cmocean.cm.balance          
-            cs.set_cmap(cmap)   
-        elif varnames[v] == 'Z500':
-            cmap = cmocean.cm.balance           
-            cs.set_cmap(cmap)  
-        elif varnames[v] == 'Z30':
-            cmap = cmocean.cm.balance  
-            cs.set_cmap(cmap)  
-        elif varnames[v] == 'U10' or varnames[v] == 'U300' or varnames[v] == 'U500' or varnames[v] == 'U700':
-            cmap = cmocean.cm.balance            
-            cs.set_cmap(cmap)  
-        elif varnames[v] == 'SWE':
-            cmap = cmap = cmocean.cm.tarn
-            cs.set_cmap(cmap)
-        elif varnames[v] == 'P':
-            cmap = cmocean.cm.tarn         
-            cs.set_cmap(cmap) 
-        elif varnames[v] == 'THICK':
-            cmap = cmocean.cm.balance          
-            cs.set_cmap(cmap) 
-        elif varnames[v] == 'EGR':
-            cmap = cmocean.cm.diff
-            cs.set_cmap(cmap)
-        elif varnames[v] == 'RNET':
-            cmap = cmocean.cm.balance
-            cs.set_cmap(cmap)
+        cmap = cmocean.cm.diff            
+        cs.set_cmap(cmap)   
     
         labelmonths = [r'NOV',r'DEC',r'JAN',r'FEB',r'MAR',r'APR']
         if i < 6:
@@ -264,24 +201,33 @@ for v in range(len(varnames)):
     cbar = fig.colorbar(cs,cax=cbar_ax,orientation='horizontal',
                         extend='both',extendfrac=0.07,drawedges=False)
     
-    if varnames[v] == 'T2M':
-        cbar.set_label(r'\textbf{$^\circ$C}',fontsize=11,color='dimgray')  
+    if varnames[v] == 'T2M' or varnames[v] == 'T1000':
+        cbar.set_label(r'\textbf{std. dev. [$^\circ$C]}',
+                                 fontsize=11,color='dimgray')  
     elif varnames[v] == 'Z500':
-        cbar.set_label(r'\textbf{m}',fontsize=11,color='dimgray')  
+        cbar.set_label(r'\textbf{std. dev. [m]}',
+                                 fontsize=11,color='dimgray')  
     elif varnames[v] == 'Z30':
-        cbar.set_label(r'\textbf{m}',fontsize=11,color='dimgray')  
+        cbar.set_label(r'\textbf{std. dev. [m]}',
+                                 fontsize=11,color='dimgray')  
     elif varnames[v] == 'SLP':
-        cbar.set_label(r'\textbf{hPa}',fontsize=11,color='dimgray')  
-    elif varnames[v] == 'U10' or varnames[v] == 'U300' or varnames[v] == 'U500' or varnames[v] == 'U700':
-        cbar.set_label(r'\textbf{m/s}',fontsize=11,color='dimgray')  
+        cbar.set_label(r'\textbf{std. dev. [hPa]}',
+                                 fontsize=11,color='dimgray')  
+    elif varnames[v] == 'U10' or varnames[v] == 'U300' or varnames[v] == 'U500':
+        cbar.set_label(r'\textbf{std. dev. [m/s]}',
+                                 fontsize=11,color='dimgray')  
     elif varnames[v] == 'SWE':
-        cbar.set_label(r'\textbf{mm}',fontsize=11,color='dimgray')
+        cbar.set_label(r'\textbf{std. dev. [mm]}',
+                                 fontsize=11,color='dimgray')
     elif varnames[v] == 'P':
-        cbar.set_label(r'\textbf{mm/day}',fontsize=11,color='dimgray') 
+        cbar.set_label(r'\textbf{std. dev. [mm/day]}',
+                                 fontsize=11,color='dimgray') 
     elif varnames[v] == 'THICK':
-        cbar.set_label(r'\textbf{m}',fontsize=11,color='dimgray') 
+        cbar.set_label(r'\textbf{std. dev. [m]}',
+                                 fontsize=11,color='dimgray') 
     elif varnames[v] == 'EGR':
-        cbar.set_label(r'\textbf{1/day}',fontsize=11,color='dimgray')
+        cbar.set_label(r'\textbf{std. dev. [1/day]}',
+                                 fontsize=11,color='dimgray')
         
     cbar.set_ticks(barlim)
     cbar.set_ticklabels(list(map(str,barlim))) 
@@ -292,7 +238,7 @@ for v in range(len(varnames)):
 
     plt.subplots_adjust(hspace=0.0,bottom=0.14,top=0.93,wspace=0.0)
     
-    plt.savefig(directoryfigure + '%s_MonthlyProfiles_100yr.png' % varnames[v],
+    plt.savefig(directoryfigure + '%s_MapsSTD_100yr.png' % varnames[v],
                 dpi=300)
     print('Completed: Script done!')
 
