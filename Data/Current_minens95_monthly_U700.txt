@@ -1,0 +1,20 @@
+# Nov  Dec  Jan  Feb  Mar  Apr
+# 
+
+209.7
+
+198.7
+
+192.1
+
+217.6
+
+234.0
+
+221.2
+
+# 
+#  Minimum number of ensembles needed to get
+#  statistical significance at the 95% confidence
+#  level for November through April
+

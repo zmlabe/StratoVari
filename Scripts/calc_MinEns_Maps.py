@@ -102,15 +102,15 @@ def computeMinEns(future,climo,alpha):
     climostd = computeSTD(climo,1)
     
     ### Calculate t statistic for confidence level
-    tc = sts.t.ppf(1-(alpha/2),len(futurem)-1) # two-tailed
+    tc = sts.t.ppf(1-(alpha/2),len(future)-1) # two-tailed
     
     ### Calculate pooled standard deviation
     sp = computePooledSD(futurestd,climostd,len(future),len(climo))
     
     ### Compute minimum ensemble number
-    nmin = (2*tc**2) * (sp/(futurem - climom))**2
+    nmin = (2*(tc**2)) * (sp/(futurem - climom))**2
     
-    nmin[np.where(nmin >= 300)] = np.nan
+    nmin[np.where(nmin >= len(future))] = np.nan
     
     print('>>>>>>>> Ending computeMinEns function!\n')
     return nmin

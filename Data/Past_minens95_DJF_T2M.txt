@@ -1,0 +1,7 @@
+61.8
+
+# 
+#  Minimum number of ensembles needed to get
+#  statistical significance at the 95% confidence
+#  level for DJF
+
