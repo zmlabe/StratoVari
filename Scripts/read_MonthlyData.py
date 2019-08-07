@@ -45,24 +45,44 @@ def readExperiAll(varid,timeperiod,level):
     import numpy as np
     from netCDF4 import Dataset
     
-    ### Directory 1 for all ensemble members (remote server - seley)
-    directorydata1 = '/seley/zlabe/simu/'
-    
     ###########################################################################
     ###########################################################################
     ###########################################################################
     
-    ### Call files for directory 1 (1-100 members)
-    if timeperiod == 'Future':
-        experi = 'PAMIP_Fu'
-    elif timeperiod == 'Current':
-        experi = 'PAMIP_Cu'
-    elif timeperiod == 'Past':
-        experi = 'PAMIP_Pi'
+    ### Call files for directory (1-300 members)
+    if any([timeperiod=='Future',timeperiod=='Current',timeperiod=='Past']):
+        ### Directory for all ensemble members (remote server - seley)
+        directorydata = '/seley/zlabe/simu/'
+        
+        if timeperiod == 'Future':
+            experi = 'PAMIP_Fu'
+        elif timeperiod == 'Current':
+            experi = 'PAMIP_Cu'
+        elif timeperiod == 'Past':
+            experi = 'PAMIP_Pi'
+        else:
+            print(ValueError('Selected wrong time period (Future,Current,Past!')) 
+        totaldirectory = directorydata + experi + '/monthly/'
+        filename = totaldirectory + varid + '_1701-2000.nc'
+    
+    ### Directories for thickness experiments (1-100 members)
+    elif any([timeperiod=='SIT_Fu',timeperiod=='SIT_Cu']):
+        if timeperiod == 'SIT_Fu':
+            experi = 'PAMIP-1.10'
+            directorydata = '/seley/ypeings/simu/'
+            totaldirectory = directorydata + experi + '/monthly/'
+            filename = totaldirectory + varid + '_1900-2000.nc'
+            print('-----------USING THICKNESS EXPERIMENTS!-----------')
+        elif timeperiod == 'SIT_Cu':
+            experi = 'PAMIP-1.9'
+            directorydata = '/seley/ypeings/simu/'
+            totaldirectory = directorydata + experi + '/monthly/'
+            filename = totaldirectory + varid + '_1900-2000.nc'
+            print('-----------USING THICKNESS EXPERIMENTS!-----------')
+        else:
+            print(ValueError('Selected wrong time period (SIT_Fu,SIT_Cu!')) 
     else:
-        print(ValueError('Selected wrong time period (Future, Current, Past!')) 
-    totaldirectory = directorydata1 + experi + '/monthly/'
-    filename = totaldirectory + varid + '_1701-2000.nc'
+        print(ValueError('Selected wrong experiment name!'))
     
     if varid == 'EGR' and level == 'surface': # integrated from 500-850 hPa
         filename = totaldirectory + varid + '_500_850.nc'
@@ -124,7 +144,7 @@ def readExperiAll(varid,timeperiod,level):
     return lat,lon,lev,var
 
 #### Test function -- no need to use    
-#varid = 'U10'
-#timeperiod = 'Past'
-#level = 'surface'
-#lat,lon,lev,var = readExperiAll(varid,timeperiod,level)
+varid = 'U10'
+timeperiod = 'SIT_Cu'
+level = 'surface'
+lat,lon,lev,var = readExperiAll(varid,timeperiod,level)

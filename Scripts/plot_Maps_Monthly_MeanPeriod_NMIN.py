@@ -41,12 +41,13 @@ years = np.arange(year1,year2+1,1)
 ###############################################################################
 ### Call arguments
 varnames = ['U10','U30','U50','U300','SLP','Z500','Z200','Z30','T2M','THICK']
+#varnames = ['U10','U200','SLP','Z500','Z200','Z50','T2M','THICK']
 
 ######################
 def readDataPeriods(varnames,sliceq):
     ### Call function for 4d variable data
-    lat,lon,lev,varfuture = MO.readExperiAll(varnames,'Future','surface')
-    lat,lon,lev,varpast = MO.readExperiAll(varnames,'Past','surface')
+    lat,lon,lev,varfuture = MO.readExperiAll(varnames,'SIT_Fu','surface')
+    lat,lon,lev,varpast = MO.readExperiAll(varnames,'SIT_Cu','surface')
     
     ### Select ensemble mean period
     if sliceq == 'Mean':

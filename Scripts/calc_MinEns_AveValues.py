@@ -91,8 +91,8 @@ def readDataPeriods(varnames,sliceq,simu):
 ###########################################################################
 ### Read in data
 sliceq = 'Mean'
-simu = 'Current'
-weighted = False
+simu = 'Past'
+weighted = True
 allnmin = np.empty((len(varnames),len(months)))
 for v in range(len(varnames)):
     future,climo,lat,lon = readDataPeriods(varnames[v],sliceq,simu)
@@ -200,7 +200,7 @@ xax = ax.get_xaxis()
 xax.set_tick_params(pad=8)
 plt.xlim([0,6])
 
-cbar = plt.colorbar(cs,orientation='horizontal',aspect=50,drawedges=False,
+cbar = plt.colorbar(cs,orientation='horizontal',aspect=50,drawedges=True,
                     extend='max')
 ticks = np.arange(0,301,50)
 cbar.set_ticks(ticks)
@@ -208,6 +208,8 @@ cbar.set_ticklabels(list(map(str,ticks)))
 cbar.ax.tick_params(axis='x', size=.01)
 cbar.outline.set_edgecolor('dimgrey')
 cbar.outline.set_linewidth(1.2)
+cbar.dividers.set_color('dimgrey')
+cbar.dividers.set_linewidth(1.2)
 cbar.ax.tick_params(labelsize=10)
 cbar.set_label(r'\textbf{Minimum Ensemble Members}',
                fontsize=13,color='dimgray',labelpad=3)  
@@ -215,7 +217,7 @@ cbar.set_label(r'\textbf{Minimum Ensemble Members}',
 plt.tight_layout()
 
 if weighted == True:
-    plt.savefig(directoryfigure + '%s_minens.png' % simu,dpi=300)
+    plt.savefig(directoryfigure + '%s_minens_weighted.png' % simu,dpi=300)
 elif weighted == False:
     plt.savefig(directoryfigure + '%s_minens.png' % simu,dpi=300)
 

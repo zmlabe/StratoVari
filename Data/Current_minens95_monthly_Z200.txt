@@ -1,17 +1,17 @@
 # Nov  Dec  Jan  Feb  Mar  Apr
 # 
 
-222.1
+221.9
 
-145.1
+175.2
 
-199.8
+197.8
 
-224.0
+216.8
 
-209.2
+213.8
 
-224.9
+220.2
 
 # 
 #  Minimum number of ensembles needed to get

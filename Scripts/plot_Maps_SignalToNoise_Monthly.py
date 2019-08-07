@@ -45,7 +45,7 @@ varnames = ['U10','U300','SLP','Z500','T2M']
 ######################
 def readDataPeriods(varnames,sliceq):
     ### Call function for 4d variable data
-    lat,lon,lev,varfuture = MO.readExperiAll(varnames,'Future','surface')
+    lat,lon,lev,varfuture = MO.readExperiAll(varnames,'Futurez','surface')
     lat,lon,lev,varpast = MO.readExperiAll(varnames,'Past','surface')
     
     ### Select ensemble mean period

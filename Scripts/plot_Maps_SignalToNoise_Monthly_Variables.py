@@ -41,8 +41,8 @@ years = np.arange(year1,year2+1,1)
 ### Read data
 def readDataPeriods(varnames):
     ### Call function for 4d variable data
-    lat,lon,lev,varfuture = MO.readExperiAll(varnames,'Future','surface')
-    lat,lon,lev,varpast = MO.readExperiAll(varnames,'Past','surface')
+    lat,lon,lev,varfuture = MO.readExperiAll(varnames,'SIT_Fu','surface')
+    lat,lon,lev,varpast = MO.readExperiAll(varnames,'SIT_Cu','surface')
     
     ### Create 2d array of latitude and longitude
     lon2,lat2 = np.meshgrid(lon,lat)
@@ -79,7 +79,7 @@ def readDataPeriods(varnames):
 t2,lat,lon = readDataPeriods('T2M')
 slp,lat,lon = readDataPeriods('SLP')
 z500,lat,lon = readDataPeriods('Z500')
-u300,lat,lon = readDataPeriods('U300')
+u300,lat,lon = readDataPeriods('U200')
 u10,lat,lon = readDataPeriods('U10')
 
 ### Append variables for plotting
@@ -161,7 +161,7 @@ for i in range(len(var)):
             fontsize=15,color='k',rotation=90,
             ha='center',va='center')  
     elif i==18:     
-        plt.annotate(r'\textbf{U300}',
+        plt.annotate(r'\textbf{U200}',
             xy=(0, 0),xytext=(-0.3,0.5),xycoords='axes fraction',
             fontsize=15,color='k',rotation=90,
             ha='center',va='center')  
