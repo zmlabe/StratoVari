@@ -1,7 +1,7 @@
 # StratoVari
 Here we conduct a series of large ensemble simulations (300 members each) to explore the robustness of the stratospheric response to Arctic sea-ice loss. We follow the new PAMIP protocol using the SC-WACCM4 model.
 
-###### Under construction... ```[Python 3.6]```
+###### Under construction... ```[Python 3.7]```
 
 ## Contact
 Zachary Labe - [Research Website](http://sites.uci.edu/zlabe/) - [@ZLabe](https://twitter.com/ZLabe)
