@@ -5,7 +5,7 @@ Statistical test uses the FDR method with alpha_FDR=0.05
 Notes
 -----
     Author : Zachary Labe
-    Date   : 8 August 2019
+    Date   : 9 August 2019
 """
 
 ### Import modules
@@ -29,7 +29,7 @@ titletime = currentmn + '/' + currentdy + '/' + currentyr
 print('\n' '----Plotting Monthly Map Comparison- %s----' % titletime)
 
 ### Alott time series (300 ensemble members)
-year1 = 1701
+year1 = 1901
 year2 = 2000
 years = np.arange(year1,year2+1,1)
 
@@ -38,21 +38,25 @@ years = np.arange(year1,year2+1,1)
 ###############################################################################
 ### Call arguments
 varnames = ['U10','Z50','U200','Z500','SLP','P','T2M','RNET']
-experi = np.repeat([r'\textbf{$\bf{\Delta}$Pi}',r'\textbf{$\bf{\Delta}$Cu}',
-          r'\textbf{$\bf{\Delta}$SIT}'],len(varnames))
+experi = np.repeat([r'\textbf{$\bf{\Delta}$Cu}',r'\textbf{$\bf{\Delta}$ATL}',
+          r'\textbf{$\bf{\Delta}$PAC}'],len(varnames))
 letters = list(string.ascii_lowercase)
 readallinfo = True
-period = 'D'
+period = 'OND'
 
 ### Define directories
 directorydata = '/seley/zlabe/simu/'
-directoryfigure = '/home/zlabe/Desktop/STRATOVARI/Comparison/Thickness/%s_Maps/' % period
+directoryfigure = '/home/zlabe/Desktop/STRATOVARI/Comparison/Regional/%s_Maps/' % period
 
 ######################
 def readDataPeriods(varnames,simulations,period):
     ### Call function for 4d variable data
     lat,lon,lev,varfuture = MO.readExperiAll(varnames,simulations[0],'surface')
-    lat,lon,lev,varpast = MO.readExperiAll(varnames,simulations[1],'surface')
+    lat,lon,lev,varpastq = MO.readExperiAll(varnames,simulations[1],'surface')
+    
+    ### Only 101 ensembles available for the "Current" simulation (PAMIP-1.1)
+    varfuture = varfuture[:101,:,:,:]
+    varpast = varpastq[:101,:,:,:]
     
     ### Create 2d array of latitude and longitude
     lon2,lat2 = np.meshgrid(lon,lat)
@@ -135,13 +139,13 @@ if readallinfo == True:
     pval = np.empty((3,len(varnames),96,144)) # [variables,simulations,lat,lon]
     for v in range(len(varnames)):
         diffp,climop,pp,lat,lon,lev = readDataPeriods(varnames[v],
-                                                         ['Future','Past'],
-                                                         period)
-        diffcu,climocu,pcu,lat,lon,lev = readDataPeriods(varnames[v],
                                                          ['Future','Current'],
                                                          period)
+        diffcu,climocu,pcu,lat,lon,lev = readDataPeriods(varnames[v],
+                                                         ['BKsea_Fu','Current'],
+                                                         period)
         diffsit,climosit,psit,lat,lon,lev = readDataPeriods(varnames[v],
-                                                         ['SIT_Fu','SIT_Cu'],
+                                                         ['Osea_Fu','Current'],
                                                          period)
         
         vari[:,v,:,:] = np.asarray([diffp,diffcu,diffsit])
@@ -202,7 +206,7 @@ for i in range(len(varnamesq)):
         barlim = np.arange(-2,3,2) 
     elif varnamesq[i] == 'THICK':
         limit = np.arange(-60,60.1,3)
-        barlim = np.arange(-60,61,30)
+        barlim = np.arange(-60,61,60)
     elif varnamesq[i] == 'EGR':
         limit = np.arange(-0.2,0.21,0.02)
         barlim = np.arange(-0.2,0.3,0.2)

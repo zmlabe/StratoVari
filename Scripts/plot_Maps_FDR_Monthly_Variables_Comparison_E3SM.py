@@ -5,7 +5,7 @@ Statistical test uses the FDR method with alpha_FDR=0.05
 Notes
 -----
     Author : Zachary Labe
-    Date   : 8 August 2019
+    Date   : 9 August 2019
 """
 
 ### Import modules
@@ -37,16 +37,16 @@ years = np.arange(year1,year2+1,1)
 ###############################################################################
 ###############################################################################
 ### Call arguments
-varnames = ['U10','Z50','U200','Z500','SLP','P','T2M','RNET']
+varnames = ['U10','Z50','U200','Z500','SLP','THICK','T2M','RNET']
 experi = np.repeat([r'\textbf{$\bf{\Delta}$Pi}',r'\textbf{$\bf{\Delta}$Cu}',
-          r'\textbf{$\bf{\Delta}$SIT}'],len(varnames))
+          r'\textbf{$\bf{\Delta}$E3SM}'],len(varnames))
 letters = list(string.ascii_lowercase)
 readallinfo = True
 period = 'D'
 
 ### Define directories
 directorydata = '/seley/zlabe/simu/'
-directoryfigure = '/home/zlabe/Desktop/STRATOVARI/Comparison/Thickness/%s_Maps/' % period
+directoryfigure = '/home/zlabe/Desktop/STRATOVARI/Comparison/E3SM/%s_Maps/' % period
 
 ######################
 def readDataPeriods(varnames,simulations,period):
@@ -141,7 +141,7 @@ if readallinfo == True:
                                                          ['Future','Current'],
                                                          period)
         diffsit,climosit,psit,lat,lon,lev = readDataPeriods(varnames[v],
-                                                         ['SIT_Fu','SIT_Cu'],
+                                                         ['E3SM_Fu','E3SM_Cu'],
                                                          period)
         
         vari[:,v,:,:] = np.asarray([diffp,diffcu,diffsit])
@@ -202,7 +202,7 @@ for i in range(len(varnamesq)):
         barlim = np.arange(-2,3,2) 
     elif varnamesq[i] == 'THICK':
         limit = np.arange(-60,60.1,3)
-        barlim = np.arange(-60,61,30)
+        barlim = np.arange(-60,61,60)
     elif varnamesq[i] == 'EGR':
         limit = np.arange(-0.2,0.21,0.02)
         barlim = np.arange(-0.2,0.3,0.2)

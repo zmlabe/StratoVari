@@ -312,8 +312,8 @@ def calc_indttest(varx,vary):
     stat,pvalue = sts.ttest_ind(varx,vary,nan_policy='omit')
     
     ### Significant at 95% confidence level
-    pvalue[np.where(pvalue >= 0.05)] = np.nan
-    pvalue[np.where(pvalue < 0.05)] = 1.
+    pvalue[np.where(pvalue >= 0.1)] = np.nan
+    pvalue[np.where(pvalue < 0.1)] = 1.
     
     print('*Completed: Finished calc_ttest function!')
     return stat,pvalue

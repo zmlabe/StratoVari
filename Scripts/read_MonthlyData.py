@@ -81,6 +81,39 @@ def readExperiAll(varid,timeperiod,level):
             print('-----------USING THICKNESS EXPERIMENTS!-----------')
         else:
             print(ValueError('Selected wrong time period (SIT_Fu,SIT_Cu!')) 
+    elif any([timeperiod=='E3SM_Fu',timeperiod=='E3SM_Cu']):
+        if timeperiod == 'E3SM_Fu':
+            experi = 'PAMIP-1.6-E3SM'
+            directorydata = '/seley/ypeings/simu/'
+            totaldirectory = directorydata + experi + '/monthly/'
+            filename = totaldirectory + varid + '_1910-2000.nc'
+            print('-----------USING DOE E3SM EXPERIMENTS!-----------')
+        elif timeperiod == 'E3SM_Cu':
+            experi = 'PAMIP-1.1-E3SM'
+            directorydata = '/seley/ypeings/simu/'
+            totaldirectory = directorydata + experi + '/monthly/'
+            filename = totaldirectory + varid + '_1910-2000.nc'
+            print('-----------USING DOE E3SM EXPERIMENTS!-----------')
+        else:
+            print(ValueError('Selected wrong time period (E3SM_Fu,E3SM_Cu!')) 
+    elif any([timeperiod=='Osea_Fu']):
+        if timeperiod == 'Osea_Fu':
+            experi = 'PAMIP-3.1'
+            directorydata = '/seley/ypeings/simu/'
+            totaldirectory = directorydata + experi + '/monthly/'
+            filename = totaldirectory + varid + '_1900-2000.nc'
+            print('-----------USING WACCM OSeaIce EXPERIMENTS!-----------')
+        else:
+            print(ValueError('Selected wrong time period (Osea_Fu!')) 
+    elif any([timeperiod=='BKsea_Fu']):
+        if timeperiod == 'BKsea_Fu':
+            experi = 'PAMIP-3.2'
+            directorydata = '/seley/ypeings/simu/'
+            totaldirectory = directorydata + experi + '/monthly/'
+            filename = totaldirectory + varid + '_1900-2000.nc'
+            print('-----------USING WACCM BKSeaIce EXPERIMENTS!-----------')
+        else:
+            print(ValueError('Selected wrong time period (BKsea_Fu!')) 
     else:
         print(ValueError('Selected wrong experiment name!'))
     
@@ -144,7 +177,7 @@ def readExperiAll(varid,timeperiod,level):
     return lat,lon,lev,var
 
 #### Test function -- no need to use    
-#varid = 'U10'
-#timeperiod = 'SIT_Cu'
-#level = 'surface'
-#lat,lon,lev,var = readExperiAll(varid,timeperiod,level)
+varid = 'T2M'
+timeperiod = 'E3SM_Fu'
+level = 'surface'
+lat,lon,lev,var = readExperiAll(varid,timeperiod,level)
