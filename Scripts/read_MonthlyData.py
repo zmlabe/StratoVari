@@ -177,7 +177,7 @@ def readExperiAll(varid,timeperiod,level):
     return lat,lon,lev,var
 
 #### Test function -- no need to use    
-varid = 'T2M'
-timeperiod = 'E3SM_Fu'
-level = 'surface'
-lat,lon,lev,var = readExperiAll(varid,timeperiod,level)
+#varid = 'T2M'
+#timeperiod = 'E3SM_Fu'
+#level = 'surface'
+#lat,lon,lev,var = readExperiAll(varid,timeperiod,level)
