@@ -13,9 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import datetime
 import read_MonthlyData as MO
-import calc_Utilities as UT
 import string
-import scipy.stats as sts
 
 ### Define time           
 now = datetime.datetime.now()
@@ -45,9 +43,14 @@ def readPolarCapData(varnames,level,levq,sliceq,period):
     """
     Read in all data for polar cap (>65N)
     """
-    lat,lon,lev,varf = MO.readExperiAveVar(varnames,'Future','polar',level)
-    lat,lon,lev,varcu = MO.readExperiAveVar(varnames,'Current','polar',level)
-    lat,lon,lev,varpi = MO.readExperiAveVar(varnames,'Past','polar',level)
+    if varnames == 'U10':
+        lat,lon,lev,varf = MO.readExperiAll(varnames,'Future','surface')
+        lat,lon,lev,varcu = MO.readExperiAll(varnames,'Current','surface')
+        lat,lon,lev,varpi = MO.readExperiAll(varnames,'Past','surface')
+    else:
+        lat,lon,lev,varf = MO.readExperiAveVar(varnames,'Future','polar',level)
+        lat,lon,lev,varcu = MO.readExperiAveVar(varnames,'Current','polar',level)
+        lat,lon,lev,varpi = MO.readExperiAveVar(varnames,'Past','polar',level)
     
     if sliceq == True:
         print('\nSlicing grid at level=%s!' % levq)
@@ -55,7 +58,12 @@ def readPolarCapData(varnames,level,levq,sliceq,period):
         varf = varf[:,:,levqq].squeeze()
         varcu = varcu[:,:,levqq].squeeze()
         varpi = varpi[:,:,levqq].squeeze()
-    elif sliceq == False:
+    elif varnames == 'U10':
+        latq = np.where((lat >= 59.5) & (lat <= 60.5))[0]
+        varf = np.nanmean(varf[:,:,latq,:].squeeze(),axis=2)
+        varcu = np.nanmean(varcu[:,:,latq,:].squeeze(),axis=2)
+        varpi = np.nanmean(varpi[:,:,latq,:].squeeze(),axis=2)
+    else:
         print('\nSurface variable!')
         
     ### Calculate time mean [returns 1D array]
@@ -131,14 +139,15 @@ def readSubEns(variable,level,levq,levslice,period):
 ###############################################################################
 ###############################################################################
 ### Read all functions
-#u10_cu,u10_pi = readSubEns('U','profile',10,True,'DJF')     
-#z50_cu,z50_pi = readSubEns('GEOP','profile',50,True,'DJF')     
-#
-#slp_cu,slp_pi = readSubEns('SLP','surface',None,False,'DJF')     
-#z500_cu,z500_pi = readSubEns('Z500','surface',None,False,'DJF')     
-#
-#t2_cu,t2_pi = readSubEns('T2M','surface',None,False,'DJF')     
-#p_cu,p_pi = readSubEns('P','surface',None,False,'DJF')     
+pv_cu,pv_pi = readSubEns('U10','surface',None,False,'DJF')
+u10_cu,u10_pi = readSubEns('U','profile',10,True,'DJF')     
+z50_cu,z50_pi = readSubEns('GEOP','profile',50,True,'DJF')     
+
+slp_cu,slp_pi = readSubEns('SLP','surface',None,False,'DJF')     
+z500_cu,z500_pi = readSubEns('Z500','surface',None,False,'DJF')     
+
+t2_cu,t2_pi = readSubEns('T2M','surface',None,False,'DJF')     
+p_cu,p_pi = readSubEns('P','surface',None,False,'DJF')     
 
 ### Create subplot files and arguement
 suball = np.array([[u10_cu,u10_pi],[z50_cu,z50_pi],[slp_cu,slp_pi],
@@ -213,6 +222,10 @@ for i in range(len(suball)):
               linestyle='--',linewidth=0.8)
     plt.plot(suball[i][0],linestyle='-',linewidth=0.8,color='rebeccapurple')
     plt.plot(suball[i][1],linestyle='-',linewidth=0.8,color='teal')
+    
+    if i == 0:
+       plt.plot(pv_pi,linestyle='-',linewidth=0.8,color='darkorange')
+       plt.plot(pv_cu,linestyle='-',linewidth=0.8,color='dodgerblue')
     
     plt.xticks(xaxis[i],list(map(str,xaxis[i])),fontsize=6)
     plt.xlim([0,xaxis[i].max()])
