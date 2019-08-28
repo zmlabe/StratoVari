@@ -82,7 +82,7 @@ def readExperiAll(varid,timeperiod,level):
             print('-----------USING THICKNESS EXPERIMENTS!-----------')
         else:
             print(ValueError('Selected wrong time period (SIT_Fu,SIT_Cu!')) 
-    elif any([timeperiod=='E3SM_Fu',timeperiod=='E3SM_Cu']):
+    elif any([timeperiod=='E3SM_Fu',timeperiod=='E3SM_Cu',timeperiod=='E3SM_Pi']):
         if timeperiod == 'E3SM_Fu':
             experi = 'PAMIP-1.6-E3SM'
             directorydata = '/seley/ypeings/simu/'
@@ -93,28 +93,31 @@ def readExperiAll(varid,timeperiod,level):
             experi = 'PAMIP-1.1-E3SM'
             directorydata = '/seley/ypeings/simu/'
             totaldirectory = directorydata + experi + '/monthly/'
-            filename = totaldirectory + varid + '_1910-2000.nc'
+            filename = totaldirectory + varid + '_1900-2000.nc'
+            print('-----------USING DOE E3SM EXPERIMENTS!-----------')
+        elif timeperiod == 'E3SM_Pi':
+            experi = 'PAMIP-1.5-E3SM'
+            directorydata = '/seley/ypeings/simu/'
+            totaldirectory = directorydata + experi + '/monthly/'
+            filename = totaldirectory + varid + '_1900-2000.nc'
             print('-----------USING DOE E3SM EXPERIMENTS!-----------')
         else:
             print(ValueError('Selected wrong time period (E3SM_Fu,E3SM_Cu!')) 
-    elif any([timeperiod=='Osea_Fu']):
+    elif any([timeperiod=='Osea_Fu',timeperiod=='BKsea_Fu']):
         if timeperiod == 'Osea_Fu':
             experi = 'PAMIP-3.1'
             directorydata = '/seley/ypeings/simu/'
             totaldirectory = directorydata + experi + '/monthly/'
             filename = totaldirectory + varid + '_1900-2000.nc'
             print('-----------USING WACCM OSeaIce EXPERIMENTS!-----------')
-        else:
-            print(ValueError('Selected wrong time period (Osea_Fu!')) 
-    elif any([timeperiod=='BKsea_Fu']):
-        if timeperiod == 'BKsea_Fu':
+        elif timeperiod == 'BKsea_Fu':
             experi = 'PAMIP-3.2'
             directorydata = '/seley/ypeings/simu/'
             totaldirectory = directorydata + experi + '/monthly/'
             filename = totaldirectory + varid + '_1900-2000.nc'
             print('-----------USING WACCM BKSeaIce EXPERIMENTS!-----------')
         else:
-            print(ValueError('Selected wrong time period (BKsea_Fu!')) 
+            print(ValueError('Selected wrong time period (Osea_Fu,BKsea_Fu!')) 
     else:
         print(ValueError('Selected wrong experiment name!'))
     
@@ -139,6 +142,12 @@ def readExperiAll(varid,timeperiod,level):
     elif level == 'zonmean': # 3d variables (zonal mean!)
         varidz = varid + '_' + level
         filename = totaldirectory + varidz + '_1701-2000.nc'
+        if any([timeperiod=='BKsea_Fu',timeperiod=='Osea_Fu',
+                timeperiod=='E3SM_Cu',timeperiod=='E3SM_Pi',
+                timeperiod=='SIT_Fu',timeperiod=='SIT_Cu']):
+            filename = totaldirectory + varidz + '_1900-2000.nc'
+        elif timeperiod=='E3SM_Fu':
+            filename = totaldirectory + varidz + '_1910-2000.nc'
         data = Dataset(filename,'r')
         lev = data.variables['level'][:]
         lat = data.variables['lat'][:]
@@ -252,7 +261,7 @@ def readExperiAveVar(varid,timeperiod,region,level):
             print('-----------USING THICKNESS EXPERIMENTS!-----------')
         else:
             print(ValueError('Selected wrong time period (SIT_Fu,SIT_Cu!')) 
-    elif any([timeperiod=='E3SM_Fu',timeperiod=='E3SM_Cu']):
+    elif any([timeperiod=='E3SM_Fu',timeperiod=='E3SM_Cu',timeperiod=='E3SM_Pi']):
         if timeperiod == 'E3SM_Fu':
             experi = 'PAMIP-1.6-E3SM'
             directorydata = '/seley/ypeings/simu/'
@@ -263,28 +272,31 @@ def readExperiAveVar(varid,timeperiod,region,level):
             experi = 'PAMIP-1.1-E3SM'
             directorydata = '/seley/ypeings/simu/'
             totaldirectory = directorydata + experi + '/monthly/'
-            filename = totaldirectory + varid + '_' + region + 'mean' + '_1910-2000.nc'
+            filename = totaldirectory + varid + '_' + region + 'mean' + '_1900-2000.nc'
+            print('-----------USING DOE E3SM EXPERIMENTS!-----------')
+        elif timeperiod == 'E3SM_Pi':
+            experi = 'PAMIP-1.5-E3SM'
+            directorydata = '/seley/ypeings/simu/'
+            totaldirectory = directorydata + experi + '/monthly/'
+            filename = totaldirectory + varid + '_' + region + 'mean' + '_1900-2000.nc'
             print('-----------USING DOE E3SM EXPERIMENTS!-----------')
         else:
             print(ValueError('Selected wrong time period (E3SM_Fu,E3SM_Cu!')) 
-    elif any([timeperiod=='Osea_Fu']):
+    elif any([timeperiod=='Osea_Fu',timeperiod=='BKsea_Fu']):
         if timeperiod == 'Osea_Fu':
             experi = 'PAMIP-3.1'
             directorydata = '/seley/ypeings/simu/'
             totaldirectory = directorydata + experi + '/monthly/'
             filename = totaldirectory + varid + '_' + region + 'mean' + '_1900-2000.nc'
             print('-----------USING WACCM OSeaIce EXPERIMENTS!-----------')
-        else:
-            print(ValueError('Selected wrong time period (Osea_Fu!')) 
-    elif any([timeperiod=='BKsea_Fu']):
-        if timeperiod == 'BKsea_Fu':
+        elif timeperiod == 'BKsea_Fu':
             experi = 'PAMIP-3.2'
             directorydata = '/seley/ypeings/simu/'
             totaldirectory = directorydata + experi + '/monthly/'
             filename = totaldirectory + varid + '_' + region + 'mean' + '_1900-2000.nc'
             print('-----------USING WACCM BKSeaIce EXPERIMENTS!-----------')
         else:
-            print(ValueError('Selected wrong time period (BKsea_Fu!')) 
+            print(ValueError('Selected wrong time period (Osea_Fu,BKsea_Fu!')) 
     else:
         print(ValueError('Selected wrong experiment name!'))
 
@@ -332,7 +344,7 @@ def readExperiAveVar(varid,timeperiod,region,level):
 
 #### Test function -- no need to use    
 #varid = 'T2M'
-#timeperiod = 'E3SM_Fu'
+#timeperiod = 'E3SM_Pi'
 #level = 'surface'
 #lat,lon,lev,var = readExperiAll(varid,timeperiod,level)
     

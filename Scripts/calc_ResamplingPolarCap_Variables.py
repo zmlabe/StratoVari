@@ -43,16 +43,16 @@ def readPolarCapData(varnames,level,levq,sliceq,period):
     """
     Read in all data for polar cap (>65N)
     """
-    if varnames == 'U10':
+    if varnames == 'U10': # data needed to calculate polar vortex definition
         lat,lon,lev,varf = MO.readExperiAll(varnames,'Future','surface')
         lat,lon,lev,varcu = MO.readExperiAll(varnames,'Current','surface')
         lat,lon,lev,varpi = MO.readExperiAll(varnames,'Past','surface')
-    else:
+    else: # averaged over the polar cap
         lat,lon,lev,varf = MO.readExperiAveVar(varnames,'Future','polar',level)
         lat,lon,lev,varcu = MO.readExperiAveVar(varnames,'Current','polar',level)
         lat,lon,lev,varpi = MO.readExperiAveVar(varnames,'Past','polar',level)
     
-    if sliceq == True:
+    if sliceq == True: # data from the polar cap
         print('\nSlicing grid at level=%s!' % levq)
         levqq = np.where(lev == levq)[0]
         varf = varf[:,:,levqq].squeeze()
@@ -80,6 +80,26 @@ def readPolarCapData(varnames,level,levq,sliceq,period):
         varwf = np.nanmean(varf[:,0:3],axis=1)
         varwcu = np.nanmean(varcu[:,0:3],axis=1)
         varwpi = np.nanmean(varpi[:,0:3],axis=1)
+    elif period == 'JF':
+        varwf = np.nanmean(varf[:,0:2],axis=1)
+        varwcu = np.nanmean(varcu[:,0:2],axis=1)
+        varwpi = np.nanmean(varpi[:,0:2],axis=1)
+    elif period == 'OND':
+        varwf = np.nanmean(varf[:,-3:],axis=1)
+        varwcu = np.nanmean(varcu[:,-3:],axis=1)
+        varwpi = np.nanmean(varpi[:,-3:],axis=1)
+    elif period == 'ND':
+        varwf = np.nanmean(varf[:,-2:],axis=1)
+        varwcu = np.nanmean(varcu[:,-2:],axis=1)
+        varwpi = np.nanmean(varpi[:,-2:],axis=1)
+    elif period == 'MAM':
+        varwf = np.nanmean(varf[:,2:5],axis=1)
+        varwcu = np.nanmean(varcu[:,2:5],axis=1)
+        varwpi = np.nanmean(varpi[:,2:5],axis=1)
+    elif period == 'Annual':
+        varwf = np.nanmean(varf[:,:],axis=1)
+        varwcu = np.nanmean(varcu[:,:],axis=1)
+        varwpi = np.nanmean(varpi[:,:],axis=1)
     elif period == 'Dec':
         varwf = varf[:,-1]
         varwcu = varcu[:,-1]
@@ -128,7 +148,7 @@ def readSubEns(variable,level,levq,levslice,period):
     lat,lon,anomcu,anompi = readPolarCapData(variable,level,levq,
                                              levslice,period)
 
-    ### Perform combinations
+    ### Perform combinations (100,000 random samples)
     subens_cu = calcSubEns(100000,anomcu)
     subens_pi = calcSubEns(100000,anompi)
     
@@ -139,15 +159,16 @@ def readSubEns(variable,level,levq,levslice,period):
 ###############################################################################
 ###############################################################################
 ### Read all functions
-pv_cu,pv_pi = readSubEns('U10','surface',None,False,'DJF')
-u10_cu,u10_pi = readSubEns('U','profile',10,True,'DJF')     
-z50_cu,z50_pi = readSubEns('GEOP','profile',50,True,'DJF')     
+periodm = 'Annual'
+pv_cu,pv_pi = readSubEns('U10','surface',None,False,periodm)
+u10_cu,u10_pi = readSubEns('U','profile',10,True,periodm)     
+z50_cu,z50_pi = readSubEns('GEOP','profile',50,True,periodm)     
 
-slp_cu,slp_pi = readSubEns('SLP','surface',None,False,'DJF')     
-z500_cu,z500_pi = readSubEns('Z500','surface',None,False,'DJF')     
+slp_cu,slp_pi = readSubEns('SLP','surface',None,False,periodm)     
+z500_cu,z500_pi = readSubEns('Z500','surface',None,False,periodm)     
 
-t2_cu,t2_pi = readSubEns('T2M','surface',None,False,'DJF')     
-p_cu,p_pi = readSubEns('P','surface',None,False,'DJF')     
+t2_cu,t2_pi = readSubEns('T2M','surface',None,False,periodm)     
+p_cu,p_pi = readSubEns('P','surface',None,False,periodm)     
 
 ### Create subplot files and arguement
 suball = np.array([[u10_cu,u10_pi],[z50_cu,z50_pi],[slp_cu,slp_pi],
@@ -242,7 +263,7 @@ for i in range(len(suball)):
     
 plt.tight_layout()
     
-plt.savefig(directoryfigure + 'Ensemble_Subsampling.png',dpi=900)
+plt.savefig(directoryfigure + 'Ensemble_Subsampling_%s.png' % periodm,dpi=900)
     
     
     
