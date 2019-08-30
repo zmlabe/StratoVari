@@ -42,6 +42,7 @@ letters = list(string.ascii_lowercase)
 periodm = 'JFM'
 periodma = 'JAS'
 dataread = True
+vari = 'U'
 
 ### Define directories
 directorydata = '/seley/zlabe/simu/'
@@ -160,52 +161,52 @@ def readDataPeriods(typesimu,varnames,simulations,period):
 ### Read in data
 if dataread == True:
     ###############################################################################
-    anom_sstcu,climo_sstcu,p_sstcu,lat,lev = readDataPeriods('sst','U',
+    anom_sstcu,climo_sstcu,p_sstcu,lat,lev = readDataPeriods('sst',vari,
                                                              ['SST_Fu','SST_Cu'],
                                                              periodm)
-    anom_sstpi,climo_sstpi,p_sstpi,lat,lev = readDataPeriods('sst','U',
+    anom_sstpi,climo_sstpi,p_sstpi,lat,lev = readDataPeriods('sst',vari,
                                                              ['SST_Fu','SST_Pi'],
                                                              periodm)
     ###############################################################################
-    anom_antcu,climo_antcu,p_antcu,lat,lev = readDataPeriods('ant_sea_ice','U',
+    anom_antcu,climo_antcu,p_antcu,lat,lev = readDataPeriods('ant_sea_ice',vari,
                                                              ['ANT_Fu','ANT_Cu'],
                                                              periodma)
-    anom_antpi,climo_antpi,p_antpi,lat,lev = readDataPeriods('ant_sea_ice','U',
+    anom_antpi,climo_antpi,p_antpi,lat,lev = readDataPeriods('ant_sea_ice',vari,
                                                              ['ANT_Fu','ANT_Pi'],
                                                              periodma)
     ###############################################################################
-    anom_BKcu,climo_BKcu,p_BKcu,lat,lev = readDataPeriods('arc_sea_ice','U',
+    anom_BKcu,climo_BKcu,p_BKcu,lat,lev = readDataPeriods('arc_sea_ice',vari,
                                                              ['BKsea_Fu','Current'],
                                                              'JFM')
-    anom_BKpi,climo_BKpi,p_BKpi,lat,lev = readDataPeriods('arc_sea_ice','U',
+    anom_BKpi,climo_BKpi,p_BKpi,lat,lev = readDataPeriods('arc_sea_ice',vari,
                                                              ['BKsea_Fu','Past'],
                                                              periodm)
     ###############################################################################
-    anom_Ocu,climo_Ocu,p_Ocu,lat,lev = readDataPeriods('arc_sea_ice','U',
+    anom_Ocu,climo_Ocu,p_Ocu,lat,lev = readDataPeriods('arc_sea_ice',vari,
                                                              ['Osea_Fu','Current'],
                                                              periodm)
-    anom_Opi,climo_Opi,p_Opi,lat,lev = readDataPeriods('arc_sea_ice','U',
+    anom_Opi,climo_Opi,p_Opi,lat,lev = readDataPeriods('arc_sea_ice',vari,
                                                              ['Osea_Fu','Past'],
                                                              periodm)
     ###############################################################################
-    anom_ARCcu,climo_ARCcu,p_ARCcu,lat,lev = readDataPeriods('arc_sea_ice','U',
+    anom_ARCcu,climo_ARCcu,p_ARCcu,lat,lev = readDataPeriods('arc_sea_ice',vari,
                                                              ['Future','Current'],
                                                              periodm)
-    anom_ARCpi,climo_ARCpi,p_ARCpi,lat,lev = readDataPeriods('arc_sea_ice','U',
+    anom_ARCpi,climo_ARCpi,p_ARCpi,lat,lev = readDataPeriods('arc_sea_ice',vari,
                                                              ['Future','Past'],
                                                              periodm)
     ###############################################################################
-    anom_SITcu,climo_SITcu,p_SITcu,lat,lev = readDataPeriods('arc_sea_ice','U',
+    anom_SITcu,climo_SITcu,p_SITcu,lat,lev = readDataPeriods('arc_sea_ice',vari,
                                                              ['SIT_Fu','SIT_Cu'],
                                                              periodm)
-    anom_SITpi,climo_SITpi,p_SITpi,lat,lev = readDataPeriods('arc_sea_ice','U',
+    anom_SITpi,climo_SITpi,p_SITpi,lat,lev = readDataPeriods('arc_sea_ice',vari,
                                                              ['SIT_Fu','Past'],
                                                              periodm)
     ###############################################################################
-    #anom_E3cu,climo_E3cu,p_E3cu,lat,lev = readDataPeriods('arc_sea_ice','U',
+    #anom_E3cu,climo_E3cu,p_E3cu,lat,lev = readDataPeriods('arc_sea_ice',vari,
     #                                                         ['E3SM_Fu','E3SM_Cu'],
     #                                                         periodm)
-    #anom_E3pi,climo_E3pi,p_E3pi,lat,lev = readDataPeriods('arc_sea_ice','U',
+    #anom_E3pi,climo_E3pi,p_E3pi,lat,lev = readDataPeriods('arc_sea_ice',vari,
     #                                                         ['E3SM_Fu','E3SM_Pi'],
     #                                                         periodm)
 ###############################################################################
@@ -305,7 +306,7 @@ for i in range(len(datas)):
     
     ### Set limits    
     cs = plt.contourf(lat,lev,anom,limit,extend='both')
-    cs1 = plt.contour(lat,lev,climo,np.arange(0,81,5),
+    cs1 = plt.contour(lat,lev,climo,np.arange(-80,81,5),
                       linewidths=0.5,colors='dimgrey') 
     cs2 = plt.contourf(lat,lev,pval,
                        colors='None',hatches=['///////'])     
@@ -352,4 +353,5 @@ cbar.ax.tick_params(labelsize=6)
 plt.tight_layout()
 plt.subplots_adjust(bottom=0.15,hspace=0.15,wspace=0.05,top=0.94)
 
-plt.savefig(directoryfigure + 'U_zonalmean_PAMIPcomp_Aug19.png',dpi=300)
+plt.savefig(directoryfigure + 'U_zonalmean_PAMIPcomp_Aug19_%s.png' % periodm,
+            dpi=300)

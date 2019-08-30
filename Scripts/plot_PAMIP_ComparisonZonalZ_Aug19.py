@@ -1,6 +1,6 @@
 """
 This script compares all PAMIP simulations as of 8/28/2019 for the zonal mean
-temperature response to historical and preindustrial forcings. All statistical
+geopotential response to historical and preindustrial forcings. All statistical
 test uses the FDR method with alpha_FDR=0.05
 
 Notes
@@ -27,7 +27,7 @@ currentdy = str(now.day)
 currentyr = str(now.year)
 currenttime = currentmn + '_' + currentdy + '_' + currentyr
 titletime = currentmn + '/' + currentdy + '/' + currentyr
-print('\n' '----Plotting Zonal Mean T - %s----' % titletime)
+print('\n' '----Plotting Zonal Mean Z - %s----' % titletime)
 
 ###############################################################################
 ###############################################################################
@@ -35,9 +35,9 @@ print('\n' '----Plotting Zonal Mean T - %s----' % titletime)
 ### Call arguments
 letters = list(string.ascii_lowercase)
 periodm = 'JFM'
-periodma = 'JAS'
+periodma = 'JAS' # for antarctica data
 dataread = True
-vari = 'TEMP'
+vari = 'GEOP'
 
 ### Define directories
 directorydata = '/seley/zlabe/simu/'
@@ -184,7 +184,7 @@ if dataread == True:
                                                              ['Osea_Fu','Past'],
                                                              periodm)
     ###############################################################################
-    anom_ARCcu,climo_ARCcu,p_ARCcu,lat,lev = readDataPeriods('arc_sea_ice',vari,
+    anom_ARCcu,climo_ARCcu,p_ARCcu,lat,lev = readDataPeriods('arc_sea_ice','GEOP',
                                                              ['Future','Current'],
                                                              periodm)
     anom_ARCpi,climo_ARCpi,p_ARCpi,lat,lev = readDataPeriods('arc_sea_ice',vari,
@@ -225,14 +225,15 @@ pvals = np.array([p_sstpi,p_sstcu,
 ###########################################################################
 ###########################################################################
 ###########################################################################
-#### Plot T
+#### Plot Z
 plt.rc('text',usetex=True)
 plt.rc('font',**{'family':'sans-serif','sans-serif':['Avant Garde']}) 
 
 ### Set limits for contours and colorbars
-limit = np.arange(-4,4.1,0.25)
-barlim = np.arange(-4,5,2)
-zscale = np.array([1000,700,500,300])
+limit = np.arange(-200,200.1,5)
+barlim = np.arange(-200,201,100)
+zscale = np.array([1000,700,500,300,200,
+                    100,50,30,10])
 latq,levq = np.meshgrid(lat,lev)
 
 fig = plt.figure()
@@ -300,7 +301,7 @@ for i in range(len(datas)):
     
     ### Set limits    
     cs = plt.contourf(lat,lev,anom,limit,extend='both')
-    cs1 = plt.contour(lat,lev,climo,np.arange(-100,110,10),
+    cs1 = plt.contour(lat,lev,climo,np.arange(0,100000,5000),
                       linewidths=0.5,colors='dimgrey') 
     cs2 = plt.contourf(lat,lev,pval,
                        colors='None',hatches=['///////'])     
@@ -309,7 +310,7 @@ for i in range(len(datas)):
     
     plt.yscale('log',nonposy='clip')
     plt.xlim([-90,90])
-    plt.ylim([1000,300])
+    plt.ylim([1000,10])
     plt.xticks(np.arange(-90,96,15),map(str,np.arange(-90,91,15)),fontsize=4)
     plt.yticks(zscale,map(str,zscale),ha='right',fontsize=4)
     plt.minorticks_off()
@@ -337,7 +338,7 @@ for i in range(len(datas)):
 cbar_ax = fig.add_axes([0.326,0.08,0.4,0.02])                
 cbar = fig.colorbar(cs,cax=cbar_ax,orientation='horizontal',
                     extend='max',extendfrac=0.07,drawedges=False)
-cbar.set_label(r'\textbf{T [$\bf{^{\circ}}$C]}',fontsize=8,color='dimgray')
+cbar.set_label(r'\textbf{Z [m]}',fontsize=8,color='dimgray')
 cbar.set_ticks(barlim)
 cbar.set_ticklabels(list(map(str,barlim))) 
 cbar.ax.tick_params(axis='x', size=.01)
@@ -347,4 +348,4 @@ cbar.ax.tick_params(labelsize=6)
 plt.tight_layout()
 plt.subplots_adjust(bottom=0.15,hspace=0.15,wspace=0.05,top=0.94)
 
-plt.savefig(directoryfigure + 'T_zonalmean_PAMIPcomp_Aug19.png',dpi=300)
+plt.savefig(directoryfigure + 'Z_zonalmean_PAMIPcomp_Aug19.png',dpi=300)
