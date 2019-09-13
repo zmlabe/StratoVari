@@ -254,7 +254,9 @@ def calc_FDR_ttest(varx,vary,alpha_f):
     
     ### Ravel all 2d pvalues
     if pvalue.ndim == 2:
-        pvalall = np.reshape(pvalue,(pvalue.shape[0]* pvalue.shape[1]))
+        pvalall = np.reshape(pvalue,(pvalue.shape[0]*pvalue.shape[1]))
+    elif pvalue.ndim == 3:
+        pvalall = np.reshape(pvalue,(pvalue.shape[0]*pvalue.shape[1]*pvalue.shape[2]))
     else:
         pvalall = pvalue
     

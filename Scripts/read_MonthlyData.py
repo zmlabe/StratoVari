@@ -69,17 +69,17 @@ def readExperiAll(varid,timeperiod,level):
     ### Directories for thickness experiments (1-100 members)
     elif any([timeperiod=='SIT_Fu',timeperiod=='SIT_Cu']):
         if timeperiod == 'SIT_Fu':
-            experi = 'PAMIP-1.10'
+            experi = 'PAMIP-1.10-300yr'
             directorydata = '/seley/ypeings/simu/'
             totaldirectory = directorydata + experi + '/monthly/'
-            filename = totaldirectory + varid + '_1900-2000.nc'
-            print('-----------USING THICKNESS EXPERIMENTS!-----------')
+            filename = totaldirectory + varid + '_1700-2000.nc'
+            print('-----------USING THICKNESS EXPERIMENTS (Future)!-----------')
         elif timeperiod == 'SIT_Cu':
-            experi = 'PAMIP-1.9'
+            experi = 'PAMIP-1.9-300yr'
             directorydata = '/seley/ypeings/simu/'
             totaldirectory = directorydata + experi + '/monthly/'
-            filename = totaldirectory + varid + '_1900-2000.nc'
-            print('-----------USING THICKNESS EXPERIMENTS!-----------')
+            filename = totaldirectory + varid + '_1700-2000.nc'
+            print('-----------USING THICKNESS EXPERIMENTS (Present-Day)!-----------')
         else:
             print(ValueError('Selected wrong time period (SIT_Fu,SIT_Cu!')) 
     elif any([timeperiod=='E3SM_Fu',timeperiod=='E3SM_Cu',timeperiod=='E3SM_Pi']):
