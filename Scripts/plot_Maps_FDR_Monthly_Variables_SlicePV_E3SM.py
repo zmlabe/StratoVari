@@ -2,7 +2,7 @@
 Plot maps of PAMIP data for DJF data comparing different simulations. 
 Statistical test uses the FDR method with alpha_FDR=0.05. Composites are 
 sorted by the strength of the polar vortex response. This script includes
-SIT experiments.
+E3SM.
 
 Notes
 -----
@@ -40,13 +40,13 @@ years = np.arange(year1,year2+1,1)
 ###############################################################################
 ###############################################################################
 ### Call arguments
-varnames = ['U10','U50','Z50','U200','U700','Z500','SLP','T2M']
+varnames = ['U10','Z50','U200','U700','Z500','SLP','T2M','P']
 experi = np.repeat([r'\textbf{$\bf{\Delta}$Pi}',r'\textbf{$\bf{\Delta}$Cu}',
-          r'\textbf{$\bf{\Delta}$SIT}'],len(varnames))
+          r'\textbf{$\bf{\Delta}$E3SM}'],len(varnames))
 letters = list(string.ascii_lowercase)
 readallinfo = True
-period = 'D'
-stat = 'all'
+period = 'JFM'
+stat = '33-66'
 
 ### Define directories
 directorydata = '/seley/zlabe/simu/'
@@ -156,7 +156,7 @@ if readallinfo == True:
                                                          ['Future','Current'],
                                                          period,stat)
         diffsit,climosit,psit,lat,lon,lev = readDataPeriods(varnames[v],
-                                                         ['SIT_Fu','SIT_Cu'],
+                                                         ['E3SM_Fu','E3SM_Cu'],
                                                          period,stat)
         
         vari[:,v,:,:] = np.asarray([diffp,diffcu,diffsit])
@@ -278,7 +278,7 @@ for i in range(len(varnamesq)):
     if any([i==0,i==8,i==16]):     
         plt.annotate(r'%s' % experi[i],
             xy=(0, 0),xytext=(-0.2,0.5),xycoords='axes fraction',
-            fontsize=13,color='k',rotation=90,
+            fontsize=9,color='k',rotation=90,
             ha='center',va='center')  
     
     if i < 16:
@@ -324,7 +324,7 @@ for i in range(len(varnamesq)):
 
 plt.subplots_adjust(hspace=-0.2)
 
-plt.savefig(directoryfigure + 'variable_Comparison_FDR_PVSliceYrs_%s_%s.png' % (period,
+plt.savefig(directoryfigure + 'E3SM_variable_Comparison_FDR_PVSliceYrs_%s_%s.png' % (period,
                                                                                 stat),
             dpi=300)
 print('Completed: Script done!')

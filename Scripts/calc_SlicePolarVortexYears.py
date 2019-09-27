@@ -44,6 +44,9 @@ def polarVortexStats(simuF,simuP,varname,vartype,stat,time):
     elif time == 'JF':
         varf = np.nanmean(varfutureu[:,0:2,:],axis=2)
         varp = np.nanmean(varpastu[:,0:2,:],axis=2)
+    elif time == 'J':
+        varf = np.nanmean(varfutureu[:,0:1,:],axis=2)
+        varp = np.nanmean(varpastu[:,0:1,:],axis=2)
     elif time == 'FM':
         varf = np.nanmean(varfutureu[:,1:3,:],axis=2)
         varp = np.nanmean(varpastu[:,1:3,:],axis=2)
@@ -102,6 +105,12 @@ def polarVortexStats(simuF,simuP,varname,vartype,stat,time):
         elif stat == '<50':
             anom50 = np.nanpercentile(anom,50)
             argyears = np.where((anom < anom50))[0]
+        elif stat == '>66':
+            anom66 = np.nanpercentile(anom,66.66)
+            argyears = np.where((anom > anom66))[0]
+        elif stat == '<33':
+            anom33 = np.nanpercentile(anom,33.333)
+            argyears = np.where((anom < anom33))[0]
         elif stat == '1sigma':
             stdev = np.nanstd(anom)
             stdl = np.nanmean(anom) - stdev

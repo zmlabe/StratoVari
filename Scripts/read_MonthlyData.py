@@ -87,7 +87,7 @@ def readExperiAll(varid,timeperiod,level):
             experi = 'PAMIP-1.6-E3SM'
             directorydata = '/seley/ypeings/simu/'
             totaldirectory = directorydata + experi + '/monthly/'
-            filename = totaldirectory + varid + '_1910-2000.nc'
+            filename = totaldirectory + varid + '_1900-2000.nc'
             print('-----------USING DOE E3SM EXPERIMENTS!-----------')
         elif timeperiod == 'E3SM_Cu':
             experi = 'PAMIP-1.1-E3SM'
@@ -264,19 +264,19 @@ def readExperiAveVar(varid,timeperiod,region,level):
     elif any([timeperiod=='E3SM_Fu',timeperiod=='E3SM_Cu',timeperiod=='E3SM_Pi']):
         if timeperiod == 'E3SM_Fu':
             experi = 'PAMIP-1.6-E3SM'
-            directorydata = '/seley/ypeings/simu/'
+            directorydata = '/seley/zlabe/simu/'
             totaldirectory = directorydata + experi + '/monthly/'
-            filename = totaldirectory + varid + '_' + region + 'mean' + '_1910-2000.nc'
+            filename = totaldirectory + varid + '_' + region + 'mean' + '_1900-2000.nc'
             print('-----------USING DOE E3SM EXPERIMENTS!-----------')
         elif timeperiod == 'E3SM_Cu':
             experi = 'PAMIP-1.1-E3SM'
-            directorydata = '/seley/ypeings/simu/'
+            directorydata = '/seley/zlabe/simu/'
             totaldirectory = directorydata + experi + '/monthly/'
             filename = totaldirectory + varid + '_' + region + 'mean' + '_1900-2000.nc'
             print('-----------USING DOE E3SM EXPERIMENTS!-----------')
         elif timeperiod == 'E3SM_Pi':
             experi = 'PAMIP-1.5-E3SM'
-            directorydata = '/seley/ypeings/simu/'
+            directorydata = '/seley/zlabe/simu/'
             totaldirectory = directorydata + experi + '/monthly/'
             filename = totaldirectory + varid + '_' + region + 'mean' + '_1900-2000.nc'
             print('-----------USING DOE E3SM EXPERIMENTS!-----------')
@@ -313,7 +313,7 @@ def readExperiAveVar(varid,timeperiod,region,level):
         lev = data.variables['level'][:]
         lat = data.variables['latitude'][:]
         lon = data.variables['longitude'][:]
-        varq = data.variables['%s' % varid][:]
+        varq = data.variables['%s' % varid][:,:] 
         data.close()
     else:
         print(ValueError('Selected wrong height - (surface or profile!)!'))    

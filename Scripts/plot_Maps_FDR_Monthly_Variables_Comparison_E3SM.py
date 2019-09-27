@@ -42,7 +42,7 @@ experi = np.repeat([r'\textbf{$\bf{\Delta}$Pi}',r'\textbf{$\bf{\Delta}$Cu}',
           r'\textbf{$\bf{\Delta}$E3SM}'],len(varnames))
 letters = list(string.ascii_lowercase)
 readallinfo = True
-period = 'D'
+period = 'OND'
 
 ### Define directories
 directorydata = '/seley/zlabe/simu/'
