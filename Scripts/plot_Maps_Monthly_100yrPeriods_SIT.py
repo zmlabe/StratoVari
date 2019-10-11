@@ -42,7 +42,6 @@ years = np.arange(year1,year2+1,1)
 ###############################################################################
 ### Call arguments
 varnames = ['U10','U700','U200','SLP','Z50','Z500','T2M']
-varnames = ['U10']
 
 ######################
 def readDataPeriods(varnames,sliceq):
