@@ -94,12 +94,35 @@ def calc_SSWCount(experi,time):
             
 ###############################################################################
 ###############################################################################
+###############################################################################            
+    elif experi == 'ncep':
+        directorydata = '/seley/zlabe/ncep/daily/'
+        directorydata2 = '/home/zlabe/Documents/Research/StratoVari/Data/'
+        expn = len(np.arange(1979,2017+1,1))
+            
+        if time == 'winter':
+            winter = np.empty((expn))
+            for i in range(1979,2017+1,1):
+                filename = '%s/sswcount_%s_11-3_winter.txt' % (i,i)
+                winter[i-1979] = np.genfromtxt(directorydata + filename,unpack=True)
+                
+            ### Tally SSW totals
+            count = winter
+            freq = (np.nansum(count)/expn) * 10.  
+            print('Total SSW = %s' % np.sum(count))
+            
+            ### Save output
+            np.savetxt(directorydata2 + 'winter_SSW_%s' % experi,count)
+            
+###############################################################################
+###############################################################################
 ###############################################################################
     print('SSW Frequency = %s per decade!' % freq)        
     return count,freq
             
 ### Test functions (do not use!)
 #count,freq = calc_SSWCount('E3SM_Cu','winter')
-count,freq = calc_SSWCount('PAMIP_Cu','winter')
+#count,freq = calc_SSWCount('PAMIP_Cu','winter')
+#count,freq = calc_SSWCount('ncep','winter')
             
         
