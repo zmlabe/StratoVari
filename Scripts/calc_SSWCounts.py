@@ -121,8 +121,8 @@ def calc_SSWCount(experi,time):
     return count,freq
             
 ### Test functions (do not use!)
-#count,freq = calc_SSWCount('E3SM_Cu','winter')
-#count,freq = calc_SSWCount('PAMIP_Cu','winter')
-#count,freq = calc_SSWCount('ncep','winter')
+count,freq = calc_SSWCount('E3SM_Cu','winter')
+count,freq = calc_SSWCount('PAMIP_Cu','winter')
+count,freq = calc_SSWCount('ncep','winter')
             
         

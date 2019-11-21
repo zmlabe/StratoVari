@@ -80,7 +80,7 @@ def readHeatFluxData(experiment,variable):
 ###########################################################################
 ###########################################################################
 ### Read in data
-variableq = 'FLNS'
+variableq = 'RNET'
 sicpd,lat,lon = readSICData('Current')
 sicpi,lat,lon = readSICData('Past')
 

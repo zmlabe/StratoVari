@@ -1,11 +1,11 @@
 """
 Plot forcing fields of sea ice and heat fluxes for November through April
-using PAMIP experiments
+using PAMIP experiments (thickness experiments)
 
 Notes
 -----
     Author : Zachary Labe
-    Date   : 28 June 2019
+    Date   : 21 November 2019
 """
 
 ### Import modules
@@ -17,6 +17,7 @@ import read_MonthlyData as MO
 import palettable.cubehelix as cm
 import cmocean 
 import itertools
+from netCDF4 import Dataset
 
 ### Define directories
 directorydata = '/seley/zlabe/simu/'
@@ -29,7 +30,7 @@ currentdy = str(now.day)
 currentyr = str(now.year)
 currenttime = currentmn + '_' + currentdy + '_' + currentyr
 titletime = currentmn + '/' + currentdy + '/' + currentyr
-print('\n' '----Plotting Monthly Maps for Forcing Fields- %s----' % titletime)
+print('\n' '----Plotting Monthly Maps for Forcing Fields (SIT)- %s----' % titletime)
 
 ### Alott time series (300 ensemble members)
 year1 = 1701
@@ -40,29 +41,56 @@ years = np.arange(year1,year2+1,1)
 ###############################################################################
 ###############################################################################
 ### Call arguments
-experiment = 'Current'
+experiment = 'SIT_Cu'
 
 ######################
 def readDataPeriods(varnames,experiment):
     ### Call function for 4d variable data
-    lat,lon,lev,varfuture = MO.readExperiAll(varnames,'Future','surface')
-    lat,lon,lev,varpast = MO.readExperiAll(varnames,experiment,'surface')
-    
-    ### Select ensemble mean period 
-    varfuture = varfuture[:,:,:,:]
-    varpast = varpast[:,:,:,:]
-    
-    ### Create 2d array of latitude and longitude
-    lon2,lat2 = np.meshgrid(lon,lat)
-    
-    ### Remove missing data
-    varfuture[np.where(varfuture <= -1e10)] = np.nan
-    varpast[np.where(varpast <= -1e10)] = np.nan
-    
-    ### Rearrange months (N,D,J,F,M,A)
-    varfuturem = np.append(varfuture[:,-2:,:,:],varfuture[:,:4,:,:],
-                           axis=1)
-    varpastm = np.append(varpast[:,-2:,:,:],varpast[:,:4,:,:],axis=1)
+    if varnames == 'SIT':
+        dataf = Dataset('/seley/ypeings/simu/PAMIP-1.10-300yr/monthly/SIT_PAMIP-1.10.nc')
+        lat = dataf.variables['TLAT'][:]
+        lon = dataf.variables['TLON'][:]
+        lev = 'surface'
+        varfuture = dataf.variables['hi'][:]
+        dataf.close()
+        
+        datah = Dataset('/seley/ypeings/simu/PAMIP-1.9-300yr/monthly/SIT_PAMIP-1.9.nc')
+        varpast = datah.variables['hi'][:]
+        datah.close()
+        
+        ### Select ensemble mean period 
+        varfuture = varfuture[:,:,:]
+        varpast = varpast[:,:,:]
+        
+        ### Remove missing data
+        varfuture[np.where(varfuture <= -1e10)] = np.nan
+        varfuture[np.where(varfuture <= 0)] = np.nan
+        varpast[np.where(varpast <= -1e10)] = np.nan   
+        varpast[np.where(varpast <= 0)] = np.nan
+
+        ### Starts in July
+        varfuturem = varfuture[5:11,:,:]
+        varpastm = varpast[5:11,:,:]
+        
+    else:    
+        lat,lon,lev,varfuture = MO.readExperiAll(varnames,'Future','surface')
+        lat,lon,lev,varpast = MO.readExperiAll(varnames,'Current','surface')
+        
+        ### Select ensemble mean period 
+        varfuture = varfuture[:,:,:,:]
+        varpast = varpast[:,:,:,:]
+        
+        ### Create 2d array of latitude and longitude
+        lon2,lat2 = np.meshgrid(lon,lat)
+        
+        ### Remove missing data
+        varfuture[np.where(varfuture <= -1e10)] = np.nan
+        varpast[np.where(varpast <= -1e10)] = np.nan
+        
+        ### Rearrange months (N,D,J,F,M,A)
+        varfuturem = np.append(varfuture[:,-2:,:,:],varfuture[:,:4,:,:],
+                               axis=1)
+        varpastm = np.append(varpast[:,-2:,:,:],varpast[:,:4,:,:],axis=1)
 
     return varfuturem,varpastm,lat,lon,lev
     
@@ -70,23 +98,21 @@ def readDataPeriods(varnames,experiment):
 ###########################################################################
 ###########################################################################
 ### Read in data
+sitf,sith,latice,lonice,levice = readDataPeriods('SIT',experiment)
 sicf,sich,lat,lon,lev = readDataPeriods('SIC',experiment)
-shf,shh,lat,lon,lev = readDataPeriods('SHFLX',experiment)
-lhf,lhh,lat,lon,lev = readDataPeriods('LHFLX',experiment)
-longf,longh,lat,lon,lev = readDataPeriods('FLNS',experiment)
 
 ### Calculate anomalies 
 anomice = np.nanmean(sicf - sich,axis=0)
-anomsh = np.nanmean(shf - shh,axis=0)
-anomlh = np.nanmean(lhf - lhh,axis=0)
-anomlong = np.nanmean(longf - longh,axis=0)
+anomsh = sitf
+anomlh = sith
+anomlong = sitf - sith
 varq = list(itertools.chain(*[anomice,anomsh,anomlh,anomlong]))
 
 ### Create variable names 
-varnamesn = list(map(str,np.repeat(['SIC'],6))) + \
-            list(map(str,np.repeat(['SHFLX'],6))) + \
-            list(map(str,np.repeat(['LHFLX'],6))) + \
-            list(map(str,np.repeat(['LWN'],6)))
+varnamesn = list(map(str,np.repeat(['$\Delta$SIC'],6))) + \
+            list(map(str,np.repeat(['SITF'],6))) + \
+            list(map(str,np.repeat(['SITH'],6))) + \
+            list(map(str,np.repeat(['$\Delta$SIT'],6)))
 labelmonths = [r'NOV',r'DEC',r'JAN',r'FEB',r'MAR',r'APR']
 letters = list(map(chr, range(97, 123)))
 
@@ -99,76 +125,64 @@ plt.rc('font',**{'family':'sans-serif','sans-serif':['Avant Garde']})
 
 fig = plt.figure()
 
-for v in range(len(varnamesn)):
+for v in range(len(varq)):
     ax = plt.subplot(4,6,v+1)
     
-    ### Upward fluxes are positive
-    if varnamesn[v] == 'LHFLX':
-        varqq = varq[v] * 1.
-    elif varnamesn[v] == 'SHFLX':
-        varqq = varq[v] * 1.
-    elif varnamesn[v] == 'THFLX':
-        varqq = varq[v] * -1.
-    elif varnamesn[v] == 'RNET':
-        varqq = varq[v] * -1.
-    elif varnamesn[v] == 'LWN':
-        varqq = varq[v] * 1.
-    elif varnamesn[v] == 'SIC':
-        varqq = varq[v]
+    varqq = varq[v]
     
     ### Set limits for contours and colorbars
-    if varnamesn[v] == 'LHFlX':
-        limit = np.arange(-50,50.1,2)
-        barlim = np.arange(-50,51,25) 
-    elif varnamesn[v] == 'SHFLX':
-        limit = np.arange(-50,50.1,2)
-        barlim = np.arange(-50,51,25) 
-    elif varnamesn[v] == 'RNET':
-        limit = np.arange(-50,50.1,2)
-        barlim = np.arange(-50,51,25) 
-    elif varnamesn[v] == 'THFLX':
-        limit = np.arange(-50,50.1,2)
-        barlim = np.arange(-50,51,25) 
-    elif varnamesn[v] == 'LWN':
-        limit = np.arange(-50,50.1,2)
-        barlim = np.arange(-50,51,25) 
-    elif varnamesn[v] == 'SIC':
-        limit = np.arange(-100,1,2)
-        barlim = np.arange(-100,1,25)
+    if varnamesn[v] == 'SITF':
+        limit = np.arange(0,5.1,0.5)
+        barlim = np.arange(0,6,1) 
+    elif varnamesn[v] == 'SITH':
+        limit = np.arange(0,5.1,0.5)
+        barlim = np.arange(0,6,1) 
+    elif varnamesn[v] == '$\Delta$SIT':
+        limit = np.arange(-2,2.1,0.25)
+        barlim = np.arange(-2,3,1)
+    elif varnamesn[v] == '$\Delta$SIC':
+        limit = np.arange(-50,51,5)
+        barlim = np.arange(-50,51,25)
     
-    m = Basemap(projection='npstere',boundinglat=51,lon_0=0,resolution='l',
-                round =True,area_thresh=10000)
-    circle = m.drawmapboundary(fill_color='white',
-                                color='dimgrey',linewidth=0.7)
-    circle.set_clip_on(False)
-    
-    var, lons_cyclic = addcyclic(varqq, lon)
-    var, lons_cyclic = shiftgrid(180., var, lons_cyclic, start=False)
-    lon2d, lat2d = np.meshgrid(lons_cyclic, lat)
-    x, y = m(lon2d, lat2d)
-
-    cs = m.contourf(x,y,var,limit,extend='both')
+    if v > 5:
+        m = Basemap(projection='npstere',boundinglat=51,lon_0=0,resolution='l',
+                    round =True,area_thresh=10000)
+        circle = m.drawmapboundary(fill_color='white',
+                                    color='dimgrey',linewidth=0.7)
+        circle.set_clip_on(False)    
+        cs = m.contourf(lonice,latice,varqq,limit,extend='both',latlon=True)
+    else:
+        var, lons_cyclic = addcyclic(varqq, lon)
+        var, lons_cyclic = shiftgrid(180., var, lons_cyclic, start=False)
+        lon2d, lat2d = np.meshgrid(lons_cyclic, lat)
+        x, y = m(lon2d, lat2d)
+        
+        m = Basemap(projection='npstere',boundinglat=51,lon_0=0,resolution='l',
+            round =True,area_thresh=10000)
+        circle = m.drawmapboundary(fill_color='white',
+                                    color='dimgrey',linewidth=0.7)
+        circle.set_clip_on(False)
+        
+        var, lons_cyclic = addcyclic(varqq, lon)
+        var, lons_cyclic = shiftgrid(180., var, lons_cyclic, start=False)
+        lon2d, lat2d = np.meshgrid(lons_cyclic, lat)
+        x, y = m(lon2d, lat2d)
+        cs = m.contourf(x,y,var,limit,extend='both')
 
     m.drawcoastlines(color='darkgray',linewidth=0.3)
     m.fillcontinents(color='dimgrey')
     
-    if varnamesn[v] == 'SIC':
-        cmap = cm.jim_special_16.mpl_colormap     
+    if varnamesn[v] == '$\Delta$SIC':
+        cmap = cmocean.cm.balance_r  
         cs.set_cmap(cmap)   
-    elif varnamesn[v] == 'LHFLX':
-        cmap = cmocean.cm.balance  
+    elif varnamesn[v] == 'SITF':
+        cmap = 'cubehelix' 
         cs.set_cmap(cmap)   
-    elif varnamesn[v] == 'SHFLX':
-        cmap = cmocean.cm.balance  
+    elif varnamesn[v] == 'SITH':
+        cmap = 'cubehelix' 
         cs.set_cmap(cmap)  
-    elif varnamesn[v] == 'RNET':
-        cmap = cmocean.cm.balance  
-        cs.set_cmap(cmap)  
-    elif varnamesn[v] == 'THFLX':
-        cmap = cmocean.cm.balance  
-        cs.set_cmap(cmap)  
-    elif varnamesn[v] == 'LWN':
-        cmap = cmocean.cm.balance  
+    elif varnamesn[v] == '$\Delta$SIT':
+        cmap = cmocean.cm.balance_r   
         cs.set_cmap(cmap)  
             
     ### Add experiment text to subplot
@@ -193,18 +207,10 @@ for v in range(len(varnamesn)):
         cbar_ax = fig.add_axes([0.92,0.71,0.01,0.15])                
         cbar = fig.colorbar(cs,cax=cbar_ax,orientation='vertical',
                             extend='both',extendfrac=0.07,drawedges=False)    
-        if varnamesn[v] == 'LHFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
-        elif varnamesn[v] == 'SHFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
-        elif varnamesn[v] == 'RNET':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
-        elif varnamesn[v] == 'THFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')     
-        elif varnamesn[v] == 'LWN':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')
-        elif varnamesn[v] == 'SIC':
+        if varnamesn[v] == '$\Delta$SIC':
             cbar.set_label(r'\textbf{\%}',fontsize=7.5,color='k')
+        else:
+            cbar.set_label(r'\textbf{m}',fontsize=7.5,color='k')
         cbar.set_ticks(barlim)
         cbar.set_ticklabels(list(map(str,barlim)))
         cbar.ax.tick_params(labelsize=5,pad=7) 
@@ -217,19 +223,11 @@ for v in range(len(varnamesn)):
     elif v == 11:
         cbar_ax = fig.add_axes([0.92,0.52,0.01,0.15])              
         cbar = fig.colorbar(cs,cax=cbar_ax,orientation='vertical',
-                            extend='both',extendfrac=0.07,drawedges=False)    
-        if varnamesn[v] == 'LHFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
-        elif varnamesn[v] == 'SHFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
-        elif varnamesn[v] == 'RNET':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
-        elif varnamesn[v] == 'THFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')     
-        elif varnamesn[v] == 'LWN':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')
-        elif varnamesn[v] == 'SIC':
+                            extend='max',extendfrac=0.07,drawedges=False)    
+        if varnamesn[v] == '$\Delta$SIC':
             cbar.set_label(r'\textbf{\%}',fontsize=7.5,color='k')
+        else:
+            cbar.set_label(r'\textbf{m}',fontsize=7.5,color='k')
         cbar.set_ticks(barlim)
         cbar.set_ticklabels(list(map(str,barlim)))
         cbar.ax.tick_params(labelsize=5,pad=8) 
@@ -243,18 +241,10 @@ for v in range(len(varnamesn)):
         cbar_ax = fig.add_axes([0.92,0.33,0.01,0.15])                 
         cbar = fig.colorbar(cs,cax=cbar_ax,orientation='vertical',
                             extend='both',extendfrac=0.07,drawedges=False)    
-        if varnamesn[v] == 'LHFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
-        elif varnamesn[v] == 'SHFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
-        elif varnamesn[v] == 'RNET':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
-        elif varnamesn[v] == 'THFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')     
-        elif varnamesn[v] == 'LWN':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')
-        elif varnamesn[v] == 'SIC':
+        if varnamesn[v] == '$\Delta$SIC':
             cbar.set_label(r'\textbf{\%}',fontsize=7.5,color='k')
+        else:
+            cbar.set_label(r'\textbf{m}',fontsize=7.5,color='k')
         cbar.set_ticks(barlim)
         cbar.set_ticklabels(list(map(str,barlim)))
         cbar.ax.tick_params(labelsize=5,pad=8) 
@@ -268,18 +258,10 @@ for v in range(len(varnamesn)):
         cbar_ax = fig.add_axes([0.92,0.14,0.01,0.15])              
         cbar = fig.colorbar(cs,cax=cbar_ax,orientation='vertical',
                             extend='both',extendfrac=0.07,drawedges=False)    
-        if varnamesn[v] == 'LHFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
-        elif varnamesn[v] == 'SHFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
-        elif varnamesn[v] == 'RNET':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')   
-        elif varnamesn[v] == 'THFLX':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')     
-        elif varnamesn[v] == 'LWN':
-            cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')
-        elif varnamesn[v] == 'SIC':
+        if varnamesn[v] == '$\Delta$SIC':
             cbar.set_label(r'\textbf{\%}',fontsize=7.5,color='k')
+        else:
+            cbar.set_label(r'\textbf{m}',fontsize=7.5,color='k')
         cbar.set_ticks(barlim)
         cbar.set_ticklabels(list(map(str,barlim)))
         cbar.ax.tick_params(labelsize=5,pad=8) 
@@ -291,5 +273,5 @@ for v in range(len(varnamesn)):
     
 fig.subplots_adjust(wspace=0,hspace=0)
        
-plt.savefig(directoryfigure + 'SeaIce-HeatFlux_Future-Pd',dpi=900)
+plt.savefig(directoryfigure + 'SIT_1.10-1.9.png',dpi=900)
 print('Completed: Script done!')

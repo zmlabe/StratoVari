@@ -39,7 +39,7 @@ def readData(exp):
         
         data = Dataset(filename,'r')
         lev = data.variables['level'][:]
-        polarcap[i-1,:,:] = data.variables['GEOP'][:730,:].squeeze()
+        polarcap[i-1,:,:] = data.variables['GEOP'][:,:].squeeze()
         data.close()
         
     print('Completed: Data read for polar cap!')
