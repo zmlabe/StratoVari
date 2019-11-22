@@ -73,7 +73,7 @@ def readDataPeriods(varnames,experiment):
 sicf,sich,lat,lon,lev = readDataPeriods('SIC',experiment)
 shf,shh,lat,lon,lev = readDataPeriods('SHFLX',experiment)
 lhf,lhh,lat,lon,lev = readDataPeriods('LHFLX',experiment)
-longf,longh,lat,lon,lev = readDataPeriods('FLNS',experiment)
+longf,longh,lat,lon,lev = readDataPeriods('FSNS',experiment)
 
 ### Calculate anomalies 
 anomice = np.nanmean(sicf - sich,axis=0)
