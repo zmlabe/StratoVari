@@ -90,22 +90,49 @@ def readDataPeriods(varnames):
         varpastm = np.append(varpast[:,-2:,:,:],varpast[:,:4,:,:],axis=1)
 
     return varfuturem,varpastm,lat,lon,lev
+
+def readHeatFlux(vari):
+    datatf = Dataset('/seley/zlabe/simu/PAMIP-1.10-300yr/monthly/RNET_1701-2000.nc')
+    rnet_sitf = datatf[vari][:-12] * -1
+    rnet_sitf = np.reshape(rnet_sitf,(300,12,96,144))
+    datatf.close()
     
-###########################################################################
-###########################################################################
-###########################################################################
-### Read in data
+    datath = Dataset('/seley/zlabe/simu/PAMIP-1.9-300yr/monthly/RNET_1701-2000.nc')
+    rnet_sith = datath[vari][:-12] * -1
+    rnet_sith = np.reshape(rnet_sith,(300,12,96,144))
+    datath.close()
+    
+    datacf = Dataset('/seley/zlabe/simu/PAMIP_Fu/monthly/RNET_1701-2000.nc')
+    rnet_sicf = datacf[vari][:] * -1
+    rnet_sicf = np.reshape(rnet_sicf,(300,12,96,144))
+    datacf.close()
+    
+    datach = Dataset('/seley/zlabe/simu/PAMIP_Cu/monthly/RNET_1701-2000.nc')
+    rnet_sich = datach[vari][:] * -1
+    rnet_sich = np.reshape(rnet_sich,(300,12,96,144))
+    datach.close()
+    
+    ### Rearrange months (N,D,J,F,M,A)
+    rnetdiff = np.nanmean((rnet_sitf - rnet_sith) - (rnet_sicf - rnet_sich),axis=0)
+    diff = np.append(rnetdiff[-2:,:,:],rnetdiff[:4,:,:],
+                           axis=0)
+    
+    print('Completed: Read heat flux data!')
+    return diff
+    
+############################################################################
+############################################################################
+############################################################################
+#### Read in data
 sitf,sith,latice,lonice,levice = readDataPeriods('SIT')
 sicf,sich,lat,lon,lev = readDataPeriods('SIC')
-rnet_sitf,rnet_sith,rnet_sicf,rnet_sich = readHeatFlux('RNET')
-
-rnetdiff = (rnet_sitf-rnet_sith) - (rnet_sicf - rnet_sich)
+rnet = readHeatFlux('RNET')
 
 ### Calculate anomalies 
 anomsic = np.nanmean(sicf - sich,axis=0)
-anomheat = np.nanmean(rnetdiff,axis=0)
+anomheat = rnet
 anomsit = sitf - sith
-varq = list(itertools.chain(*[anomsic,anomsit,rnetdiff]))
+varq = list(itertools.chain(*[anomsic,anomsit,anomheat]))
 
 ### Create variable names 
 varnamesn = list(map(str,np.repeat(['$\Delta$SIC'],6))) + \
@@ -141,11 +168,11 @@ for v in range(len(varq)):
     elif varnamesn[v] == '$\Delta$SIC':
         limit = np.arange(-50,51,5)
         barlim = np.arange(-50,51,25)
-    elif varnamesn[v] == 'NETFLX':
-        limit = np.arange(-50,50.1,2)
-        barlim = np.arange(-50,51,25) 
+    elif varnamesn[v] == '$\Delta$NETFLX':
+        limit = np.arange(-10,10.1,0.25)
+        barlim = np.arange(-10,11,5) 
     
-    if v > 5:
+    if v > 5 and v < 12:
         m = Basemap(projection='npstere',boundinglat=51,lon_0=0,resolution='l',
                     round =True,area_thresh=10000)
         circle = m.drawmapboundary(fill_color='white',
@@ -153,13 +180,13 @@ for v in range(len(varq)):
         circle.set_clip_on(False)    
         cs = m.contourf(lonice,latice,varqq,limit,extend='both',latlon=True)
     else:
+        m = Basemap(projection='npstere',boundinglat=51,lon_0=0,resolution='l',
+            round =True,area_thresh=10000)
         var, lons_cyclic = addcyclic(varqq, lon)
         var, lons_cyclic = shiftgrid(180., var, lons_cyclic, start=False)
         lon2d, lat2d = np.meshgrid(lons_cyclic, lat)
         x, y = m(lon2d, lat2d)
-        
-        m = Basemap(projection='npstere',boundinglat=51,lon_0=0,resolution='l',
-            round =True,area_thresh=10000)
+    
         circle = m.drawmapboundary(fill_color='white',
                                     color='dimgrey',linewidth=0.7)
         circle.set_clip_on(False)
@@ -185,7 +212,7 @@ for v in range(len(varq)):
     elif varnamesn[v] == '$\Delta$SIT':
         cmap = cmocean.cm.balance_r   
         cs.set_cmap(cmap)  
-    elif varnamesn[v] == 'NETFLX':
+    elif varnamesn[v] == '$\Delta$NETFLX':
         cmap = cmocean.cm.balance   
         cs.set_cmap(cmap)  
             
@@ -208,12 +235,12 @@ for v in range(len(varq)):
             
     ###########################################################################
     if v == 5:
-        cbar_ax = fig.add_axes([0.92,0.71,0.01,0.15])                
+        cbar_ax = fig.add_axes([0.92,0.68,0.01,0.15])                
         cbar = fig.colorbar(cs,cax=cbar_ax,orientation='vertical',
                             extend='both',extendfrac=0.07,drawedges=False)    
         if varnamesn[v] == '$\Delta$SIC':
             cbar.set_label(r'\textbf{\%}',fontsize=7.5,color='k')
-        elif varnamesn[v] == 'NETFLX':
+        elif varnamesn[v] == '$\Delta$NETFLX':
             cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')  
         else:
             cbar.set_label(r'\textbf{m}',fontsize=7.5,color='k')
@@ -227,12 +254,12 @@ for v in range(len(varq)):
         cbar.outline.set_linewidth(0.5)
         
     elif v == 11:
-        cbar_ax = fig.add_axes([0.92,0.52,0.01,0.15])              
+        cbar_ax = fig.add_axes([0.92,0.43,0.01,0.15])              
         cbar = fig.colorbar(cs,cax=cbar_ax,orientation='vertical',
                             extend='max',extendfrac=0.07,drawedges=False)    
         if varnamesn[v] == '$\Delta$SIC':
             cbar.set_label(r'\textbf{\%}',fontsize=7.5,color='k')
-        elif varnamesn[v] == 'NETFLX':
+        elif varnamesn[v] == '$\Delta$NETFLX':
             cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')  
         else:
             cbar.set_label(r'\textbf{m}',fontsize=7.5,color='k')
@@ -246,12 +273,12 @@ for v in range(len(varq)):
         cbar.outline.set_linewidth(0.5)
         
     elif v == 17:
-        cbar_ax = fig.add_axes([0.92,0.33,0.01,0.15])                 
+        cbar_ax = fig.add_axes([0.92,0.17,0.01,0.15])                 
         cbar = fig.colorbar(cs,cax=cbar_ax,orientation='vertical',
                             extend='both',extendfrac=0.07,drawedges=False)    
         if varnamesn[v] == '$\Delta$SIC':
             cbar.set_label(r'\textbf{\%}',fontsize=7.5,color='k')
-        elif varnamesn[v] == 'NETFLX':
+        elif varnamesn[v] == '$\Delta$NETFLX':
             cbar.set_label(r'\textbf{W/m$^{2}$}',fontsize=7.5,color='k')  
         else:
             cbar.set_label(r'\textbf{m}',fontsize=7.5,color='k')
