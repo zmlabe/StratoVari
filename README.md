@@ -22,7 +22,7 @@ Zachary Labe - [Research Website](http://sites.uci.edu/zlabe/) - [@ZLabe](https:
 
 
 ## Publications
-[1] Peings, Y., **Z.M. Labe**, and G. Magnusdottir, 2020. Are 100 ensemble members enough to capture the remote atmospheric response to +2°C Arctic sea ice loss?, Journal of Climate, (*revised*)
+[1] Peings, Y., **Z.M. Labe**, and G. Magnusdottir (2021), Are 100 ensemble members enough to capture the remote atmospheric response to +2°C Arctic sea ice loss? <em>Journal of Climate</em>, DOI:10.1175/JCLI-D-20-0613.1 [[HTML]](https://journals.ametsoc.org/view/journals/clim/aop/JCLI-D-20-0613.1/JCLI-D-20-0613.1.xml)[[BibTeX]](https://sites.uci.edu/zlabe/files/2021/02/PeingsLabeMagnusdottir_ENS2021_JCLI_BibTeX.pdf)
 
 ## Conferences
 + [1] **Labe, Z.M.**, Y. Peings, and G. Magnusdottir. Detection of Signal in the Large-Scale Circulation Response to Arctic Sea-Ice Decline, *33rd Conference on Climate Variability and Change*, Boston, MA (Jan 2020). [[Abstract]](https://ams.confex.com/ams/2020Annual/meetingapp.cgi/Paper/367289)
